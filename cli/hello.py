@@ -28,3 +28,4 @@ print("您的IP是：" + get_host_ip())
 # pip3 install -i https://pypi.tuna.tsinghua.edu.cn/simple --upgrade pip --user
 # django-admin.py startproject mysite
 # python3 manage.py startapp nlp
+# 2
