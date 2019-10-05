@@ -4,6 +4,7 @@
 <head>
 	<meta charset="UTF-8">
 	<!-- import CSS -->
+    <title>情感分析</title>
 	<link rel="stylesheet" href="https://cdn.bootcss.com/element-ui/2.12.0/theme-chalk/index.css">
 </head>
 
@@ -19,7 +20,10 @@
 							</el-input>
 						</el-row>
 						<el-row>
-							<el-button name="submit" @click="onSubmit" plain>提交</el-button>
+                            <el-tooltip class="item" effect="dark" content="示例来自JD.com，且为非训练语料" placement="top">
+							    <el-button type="info" icon="el-icon-refresh-left" id="random" @click="randomSample" plain>随机示例</el-button>
+                            </el-tooltip>
+							<el-button type="primary" icon="el-icon-s-promotion" name="submit" @click="onSubmit" plain>分析</el-button>
 						</el-row>
 
 					</el-tab-pane>
@@ -81,24 +85,64 @@
             }
         },
         methods:{
-          onSubmit(){
-            var params = new URLSearchParams();
-            params.append('sentence', this.textarea);
-            axios.post("/UploadText/",params).then((response)=>{
-            this.value=response.data;
-            
-        });
-
-          },
-          uploadSuccess (response, file, fileList) {
-            console.log('上传文件', response)
-            this.value=response;
-          },
-          uploadError (response, file, fileList) {
-            alert("上传失败");
-            console.log('上传文件', response)
-          },
-        
+            onSubmit(){
+                if (this.textarea == "") {
+                    this.$alert('分析内容不能为空', '提示', {confirmButtonText: '确定', center: true});
+                } else if (this.textarea.length <= 10) {
+                    this.$alert('分析内容过短', '提示', {confirmButtonText: '确定', center: true});
+                } else {
+                    var params = new URLSearchParams();
+                    params.append('sentence', this.textarea);
+                    axios.post("/UploadText/",params).then((response)=>{
+                    this.value=response.data;
+                    this.$message({type: 'success',message: '分析成功!'});
+                    });
+                }
+            },
+            uploadSuccess (response, file, fileList) {
+                console.log('上传文件', response)
+                this.value=response;
+            },
+            uploadError (response, file, fileList) {
+                alert("上传失败");
+                console.log('上传文件', response)
+            },
+            randomSample(){
+                var t=document.getElementById("txt");
+                var x=Math.floor(Math.random()*7);
+                sample = new Array;
+                sample[0] = "手机很好，功能很强大，刷脸功能特别好用，配置很高，速度很快，屏幕超级清晰，拍照很好用，电池容量大，两天一冲，给老婆买的，特别喜欢，爱不释手，质感非常好，支持华为国产手机和国产芯片，性价比超高，物流很快下次还买，家里人都是用的华为手机，非常赞!"
+                sample[1] = "京东速度挺快的，包包看起来材质有点不耐背一样的感觉。看图，这种走线的风格不是我喜欢的。也许我不是内行吧，用时间来见证吧！"
+                sample[2] = "面料非常舒适，尺码标准，很喜欢，上身效果很好，特别显气质，颜色正，质感特别的不错，款式时尚大方，性价比很高。"
+                sample[3] = "之前用的是三门的西门子冰箱，用了七年，觉得储存空间小于是在京东买了这台双开门的。结果…噪音和之前那台比大的我在卧室里晚上都被厨房里的这台冰箱吵得睡不着………原来那台七年零噪音，这台现在在联系售后维修，之前那台买的时候是进口的，这台是国产的，不要让我对国产太失望啊。"
+                sample[4] = "有点卡，开关机比较慢。就是比较垃圾吧，不知道后面会怎么样。因为三星是个大品牌，可能后面用着会好。"
+                sample[5] = "屏幕显示不如苹果，尤其在显示小字体时分辨率太低，发热控制不好。 尤其指纹解锁非常不方便，开机保护一段时间后指纹无法识别，必须重新输入密码才能解锁。 还有，手写笔在屏幕上的滑动手感不如苹果的pad。 显示和体验感离苹果很有一段距离。"
+                sample[6] = "刚听说创业者这本书的时候，内心很自然的反应就是：不同口味的鸡汤而已。但是有一次坊间聚餐，无意中听到了隔壁桌在讨论孙总的这本书，内容、论点、立场都十分的新颖，瞬间让我对他产生了不一样的兴趣。前些日子无意中从京东看见了这本书，我便购买了几本，几天阅读下来，使我对创业者这个概念有了新的认知。京东物流很快，包装完好，服务贴心。"
+                this.textarea = sample[x]
+                switch(x) {
+                    case 0:
+                        this.$message('此评价来自华为 Mate30，评价星级为 5 星');
+                        break;
+                    case 1:
+                        this.$message('此评价来自十字勋章 双肩包，评价星级为 3 星');
+                        break;
+                    case 2:
+                        this.$message('此评价来自巧谷 外套，评价星级为 5 星');
+                        break;
+                    case 3:
+                        this.$message('此评价来自西门子 冰箱，评价星级为 1 星');
+                        break;
+                    case 4:
+                        this.$message('此评价来自三星 星耀7 笔记本，评价星级为 1 星');
+                        break;
+                    case 5:
+                        this.$message('此评价来自三星 星耀pen 翻转本，评价星级为 1 星');
+                        break;
+                    case 6:
+                        this.$message('此评价来自《创业者：不一样的孙陶然》，评价星级为 5 星');
+                        break;
+                }
+            }
         }
         
 
