@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.http import HttpResponse
 # from django.shortcuts import HttpResponse
 import joblib
 import jieba
@@ -56,35 +57,49 @@ def index(request):
 
 
 def UploadFile(request):
-    # from django import forms
-    proList = []
     if request.method == "POST":
         f = request.FILES['TxtFile']
         sentence = f.read()
         sentence = sentence.decode("utf-8")
         sentenceList = sentence.split('\n')
         List = getScoreList(sentenceList)
-        # print(List)
+        sum = 0.0
         for score in List:
-            score = '%.0f' % (score * 100)
-            proList.append(score)
-        # print(proList)
-        # with open('some/file/comment.txt', 'wb+') as destination:
-        #     for chunk in f.chunks():
-        #         destination.write(chunk)
+            sum += score * 5
+        Star = round(sum / len(List), 1)
+        response = HttpResponse()
+        response.content = Star  ###这里返回满分为五分的评分
+        return response
+    # return render(request, "UploadFile.html", {"data": "0"})
+    # from django import forms
+    # proList = []
+    # if request.method == "POST":
+    #     f = request.FILES['TxtFile']
+    #     sentence = f.read()
+    #     sentence = sentence.decode("utf-8")
+    #     sentenceList = sentence.split('\n')
+    #     List = getScoreList(sentenceList)
+    #     # print(List)
+    #     for score in List:
+    #         score = '%.0f' % (score * 100)
+    #         proList.append(score)
+    #     # print(proList)
+    #     # with open('some/file/comment.txt', 'wb+') as destination:
+    #     #     for chunk in f.chunks():
+    #     #         destination.write(chunk)
 
-        # sentence = open(obj).read()
-        # score = getScore(sentence)
-        # scoreList.append(score)
-        # scoreList = txtScore()
+    #     # sentence = open(obj).read()
+    #     # score = getScore(sentence)
+    #     # scoreList.append(score)
+    #     # scoreList = txtScore()
 
-        # proList.append(score)
-        # print(proList)
-        # Lists = txtScore()
-        # for List in Lists:
-        #     proList.append(List[0])
-        # print(proList)
-    return render(request, "UploadFile.html", {"data": proList})
+    #     # proList.append(score)
+    #     # print(proList)
+    #     # Lists = txtScore()
+    #     # for List in Lists:
+    #     #     proList.append(List[0])
+    #     # print(proList)
+    # return render(request, "UploadFile.html", {"data": proList})
 
 
 def txtScore():
@@ -107,18 +122,25 @@ def getScoreList(sentenceList):
     # print(temp)
     return temp
 
-
-def inputForm(request):
-    score = 0
+def UploadText(request):
     if request.method == "POST":
         sentence = request.POST.get("sentence", None)
-        # print(sentence)
-        #sentence = sentence.decode("utf-8")
         score = getStar(sentence)
-        #score = '%.0f' % (score * 100)
-        # scoreList.append(score)
-        # print(scoreList)
-    return render(request, "inputForm.html", {"data": score})
+        response=HttpResponse()
+        response.content=score
+        return response
+
+def inputForm(request):
+    # score = 0
+    # if request.method == "POST":
+    #     sentence = request.POST.get("sentence", None)
+    #     # print(sentence)
+    #     #sentence = sentence.decode("utf-8")
+    #     score = getStar(sentence)
+    #     #score = '%.0f' % (score * 100)
+    #     # scoreList.append(score)
+    #     # print(scoreList)
+    return render(request, "inputForm.html")
 
 
 def getStar(sentence):
