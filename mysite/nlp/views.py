@@ -47,9 +47,9 @@ def index(request):
         sentence = request.POST.get("sentence", None)
         # print(sentence)
         score = getScore(sentence)
-        score = ('%.2f' % score) * 100.0
+        score = '%.0f' % (score * 100)
         scoreList.append(score)
-        print(scoreList)
+        # print(scoreList)
     return render(request, "index.html", {"data": scoreList})
 
 
@@ -64,7 +64,7 @@ def UploadFile(request):
         List = getScoreList(sentenceList)
         # print(List)
         for score in List:
-            score = ('%.2f' % score)
+            score = '%.0f' % (score * 100)
             proList.append(score)
         # print(proList)
         # with open('some/file/comment.txt', 'wb+') as destination:
