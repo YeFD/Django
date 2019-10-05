@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>test</title>
+</head>
+<body>
+    <h1 style="background-color: antiquewhite;color: black;">hello world</h1>
+    <form action="/index/" method="post">
+        {% csrf_token %}
+        <input type="text" name="sentence"/>
+        <input type="submit" value="submit"/>
+    </form>
+    <hr />
+    <h1 style="">tips</h1>
+    <table border="1">
+        <thead>
+            <th>sentence</th>
+        </thead>
+        <tbody>
+            {% for line in data %}
+                <tr>
+                    <td>{{ line }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
