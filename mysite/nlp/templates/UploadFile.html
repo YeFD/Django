@@ -1,0 +1,14 @@
+<form action="{%url 'nlp:UploadFile'%}" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <p>请选择一个txt文件</p>
+    <br>
+    <input type="file" name=TxtFile accept=".txt">
+    <input type="submit" value="submit">
+</form>
+
+<p>情感得分:</p>
+{% for line in data %}
+    <tr>
+        <td>{{ line }}</td>
+    </tr>
+{% endfor %}

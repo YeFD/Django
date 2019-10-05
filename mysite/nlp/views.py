@@ -3,9 +3,10 @@ from django.shortcuts import render
 import joblib
 import jieba
 # Create your views here.
-scoreList = [60.9, 15.0]
 stopwords_path = r'/home/coding/workspace/mysite/nlp/stopword.txt'
-stopwords = [line.strip() for line in open(stopwords_path, 'r', encoding='utf-8').readlines()]
+commentPath = r'/home/coding/workspace/mysite/some/file/comment.txt'
+stopwords = [line.strip() for line in open(
+    stopwords_path, 'r', encoding='utf-8').readlines()]
 TFIDF_model = joblib.load(r'/home/coding/workspace/cli/TFIDF.model')
 model = joblib.load(r'/home/coding/workspace/cli/bayes.model')
 
@@ -41,13 +42,65 @@ def getScore(sentence):
 
 
 def index(request):
+    scoreList = []
     if request.method == "POST":
         sentence = request.POST.get("sentence", None)
-        print(sentence)
+        # print(sentence)
         score = getScore(sentence)
         scoreList.append(score)
     return render(request, "index.html", {"data": scoreList})
 
+
+def UploadFile(request):
+    # from django import forms
+    proList = []
+    if request.method == "POST":
+        f = request.FILES['TxtFile']
+        sentence = f.read()
+        sentence = sentence.decode("utf-8")
+        sentenceList = sentence.split('\n')
+        List = getScoreList(sentenceList)
+        # print(List)
+        for score in List:
+            proList.append(score)
+        # print(proList)
+        # with open('some/file/comment.txt', 'wb+') as destination:
+        #     for chunk in f.chunks():
+        #         destination.write(chunk)
+
+        # sentence = open(obj).read()
+        # score = getScore(sentence)
+        # scoreList.append(score)
+        # scoreList = txtScore()
+
+        # proList.append(score)
+        # print(proList)
+        # Lists = txtScore()
+        # for List in Lists:
+        #     proList.append(List[0])
+        # print(proList)
+    return render(request, "UploadFile.html", {"data": proList})
+
+
+def txtScore():
+    sentenceList = [line.strip() for line in open(
+        commentPath, 'r', encoding='utf-8').readlines()]
+    sentenceCut = cut_words(sentenceList)
+    dataTFIDF = TFIDF_model.transform(sentenceCut)
+    predictPro = model.predict_proba(dataTFIDF)
+    # print(predictPro)
+    return predictPro
+
+
+def getScoreList(sentenceList):
+    sentenceCut = cut_words(sentenceList)
+    dataTFIDF = TFIDF_model.transform(sentenceCut)
+    predictPro = model.predict_proba(dataTFIDF)
+    temp = []
+    for predict in predictPro:
+        temp.append(predict[0])
+    # print(temp)
+    return temp
 
 # cd mysite
 # python3 manage.py runserver 0.0.0.0:8080
