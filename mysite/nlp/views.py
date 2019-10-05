@@ -38,7 +38,8 @@ def getScore(sentence):
     data_TFIDF = TFIDF_model.transform(sentence_cut)
 
     predict_pro = model.predict_proba(data_TFIDF)
-    return predict_pro[0][0]
+    print(predict_pro)
+    return predict_pro[0][1]
 
 
 def index(request):
@@ -50,6 +51,7 @@ def index(request):
         score = '%.0f' % (score * 100)
         scoreList.append(score)
         # print(scoreList)
+        # print(getStar(sentence))
     return render(request, "index.html", {"data": scoreList})
 
 
@@ -101,9 +103,33 @@ def getScoreList(sentenceList):
     predictPro = model.predict_proba(dataTFIDF)
     temp = []
     for predict in predictPro:
-        temp.append(predict[0])
+        temp.append(predict[1])
     # print(temp)
     return temp
 
+
+def inputForm(request):
+    score = 0
+    if request.method == "POST":
+        sentence = request.POST.get("sentence", None)
+        # print(sentence)
+        #sentence = sentence.decode("utf-8")
+        score = getStar(sentence)
+        #score = '%.0f' % (score * 100)
+        # scoreList.append(score)
+        # print(scoreList)
+    return render(request, "inputForm.html", {"data": score})
+
+
+def getStar(sentence):
+    sentence_list = []
+    sentence_list.append(sentence)
+    sentence_cut = cut_words(sentence_list)
+    data_TFIDF = TFIDF_model.transform(sentence_cut)
+
+    predict_pro = model.predict_proba(data_TFIDF)
+    score = '%.1f' % (predict_pro[0][1] * 5)
+    # print(score)
+    return score
 # cd mysite
 # python3 manage.py runserver 0.0.0.0:8080

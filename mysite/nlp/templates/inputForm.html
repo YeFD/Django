@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <!-- import CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+</head>
+<body>
+<div id="app" style="width: 800px;height: 600px;text-align:center;">
+    <el-container>
+
+        <el-main>
+            <el-tabs type="border-card">
+                <el-tab-pane label="输入文本">
+                    <el-form action="/inputForm/" method="post">
+                        <el-row type="flex" class="row-bg">
+                            <el-input
+                                    type="textarea"
+                                    :rows="10"
+                                    placeholder="请输入内容"
+                                    v-model="textarea"
+                                    name="sentence">
+                            </el-input>
+                        </el-row>
+                        <el-row>
+                            <el-button name="submit" native-type="submit" plain>提交</el-button>
+                        </el-row>
+                    </el-form>
+                    <el-row>
+                
+                        
+                        <el-rate
+                                v-model="value"
+                                disabled
+                                show-score
+                                text-color="#ff9900"
+                                score-template="{value}">
+                        </el-rate>
+                    </el-row>
+
+                </el-tab-pane>
+
+                <el-tab-pane label="上传文本">
+                    <el-row type="flex" class="row-bg">
+                        <el-col :span="6">
+                            <div class="grid-content bg-purple"></div>
+                        </el-col>
+                        <el-col :span="6">
+                            <div class="grid-content bg-purple-light">
+                                <el-upload
+                                        class="upload-demo"
+                                        drag
+                                        action="https://jsonplaceholder.typicode.com/posts/"
+                                        multiple>
+                                    <i class="el-icon-upload"></i>
+                                    <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+                                    <div class="el-upload__tip" slot="tip">只能上传txt文件，且不超过500kb</div>
+                                </el-upload>
+                            </div>
+                        </el-col>
+
+                        <el-col :span="6">
+                            <div class="grid-content bg-purple"></div>
+                        </el-col>
+                    </el-row>
+
+                </el-tab-pane>
+            </el-tabs>
+        </el-main>
+
+
+    </el-container>
+</div>
+</body>
+<!-- import Vue before Element -->
+<script src="https://unpkg.com/vue/dist/vue.js"></script>
+<!-- import JavaScript -->
+<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+<script>
+    new Vue({
+        el: '#app',
+        data: function () {
+            return {
+                visible: false,
+                textarea:'',
+                value:{{data}}
+            }
+        }
+    })
+</script>
+<style>
+    .el-row {
+        margin-bottom: 20px;
+    }
+
+    .el-col {
+        border-radius: 4px;
+    }
+
+</style>
+</html>
