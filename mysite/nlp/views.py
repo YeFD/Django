@@ -68,7 +68,7 @@ def UploadFile(request):
             sum += score * 5
         Star = round(sum / len(List), 1)
         response = HttpResponse()
-        response.content = Star  ###这里返回满分为五分的评分
+        response.content = Star  # 这里返回满分为五分的评分
         return response
     # return render(request, "UploadFile.html", {"data": "0"})
     # from django import forms
@@ -153,5 +153,7 @@ def getStar(sentence):
     score = '%.1f' % (predict_pro[0][1] * 5)
     # print(score)
     return score
+
+
 # cd mysite
 # python3 manage.py runserver 0.0.0.0:8080
