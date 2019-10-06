@@ -4,7 +4,7 @@
 <head>
 	<meta charset="UTF-8">
 	<!-- import CSS -->
-    <title>情感分析</title>
+	<title>情感分析</title>
 	<link rel="stylesheet" href="https://cdn.bootcss.com/element-ui/2.12.0/theme-chalk/index.css">
 </head>
 
@@ -20,14 +20,14 @@
 							</el-input>
 						</el-row>
 						<el-row type="flex" justify="start">
-              <el-col :span="1">
-                <el-tooltip class="item" effect="dark" content="示例均来自JD.com，且为非训练语料" placement="bottom-start">
-							    <el-button type="info" icon="el-icon-refresh" id="random" @click="randomSample" plain>随机示例</el-button>
-                </el-tooltip>
-              </el-col>
-              <el-col :span="8" :offset="7">
-							  <el-button type="primary" icon="el-icon-s-promotion" name="submit" @click="onSubmit" plain>分析</el-button>
-              </el-col>
+							<el-col :span="1">
+								<el-tooltip class="item" effect="dark" content="示例均来自JD.com，且为非训练语料" placement="bottom-start">
+									<el-button type="info" icon="el-icon-refresh" id="random" @click="randomSample" plain>随机示例</el-button>
+								</el-tooltip>
+							</el-col>
+							<el-col :span="8" :offset="7">
+								<el-button type="primary" icon="el-icon-s-promotion" name="submit" @click="onSubmit" plain>分析</el-button>
+							</el-col>
 						</el-row>
 
 					</el-tab-pane>
@@ -44,7 +44,7 @@
 
 										<i class="el-icon-upload"></i>
                                     <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
-                                    <div class="el-upload__tip" slot="tip">只能上传txt文件，且不超过500kb</div>
+                                    <div class="el-upload__tip">只能上传txt文件，且不超过500kb</div>
                                 </el-upload>
                             </div>
                         </el-col>
@@ -56,7 +56,12 @@
                     
 
                 </el-tab-pane>
-                <el-row>
+                <el-row type="flex" class="row-bg" justify="center">
+                    <el-col :span="8">
+                        <div></div>
+                    </el-col>
+
+                    <el-col :span="8">
                         <el-rate
                                 v-model="value"
                                 disabled
@@ -64,6 +69,14 @@
                                 text-color="#ff9900"
                                 score-template="{value}">
                         </el-rate>
+                    </el-col>
+                    <el-col :span="0">
+                        
+                    </el-col>
+                    <el-col :span="8">
+                        
+                    </el-col>
+                        
                   </el-row>
             </el-tabs>
             
@@ -86,6 +99,7 @@
                 visible: false,
                 textarea:'',
                 value:0,
+                url:"https://ftp.bmp.ovh/imgs/2019/10/21f9a00cab7d11a0.png"
             }
         },
         methods:{
@@ -161,6 +175,14 @@
 
     .el-col {
         border-radius: 4px;
+    }
+
+    .el-tabs{
+        background-image:url(https://s2.ax1x.com/2019/10/06/u62vOs.png);
+        background-size:120px 130px;
+        background-repeat:no-repeat;
+        background-position:bottom right;
+        background-margin:
     }
 
 </style>
