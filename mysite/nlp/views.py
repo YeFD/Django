@@ -122,13 +122,15 @@ def getScoreList(sentenceList):
     # print(temp)
     return temp
 
+
 def UploadText(request):
     if request.method == "POST":
         sentence = request.POST.get("sentence", None)
         score = getStar(sentence)
-        response=HttpResponse()
-        response.content=score
+        response = HttpResponse()
+        response.content = score
         return response
+
 
 def inputForm(request):
     # score = 0
