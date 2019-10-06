@@ -123,8 +123,12 @@
                 this.$message({type: 'success',message: '分析成功!'});
             },
             uploadError (response, file, fileList) {
-                alert("上传失败");
-                console.log('上传文件', response)
+                this.$alert('请检查上传txt文件是否为UTF-8编码', '上传失败',{
+                  confirmButtonText: '确定',
+                  type: 'error',
+                  center: true
+                })
+                console.log('上传文件', response);
             },
             randomSample(){
                 var t=document.getElementById("txt");
