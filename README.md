@@ -1,3 +1,21 @@
+## 评论情感分析
+网页使用Django开发，本环境已安装Python3.5.2，jieba，sklearn，joblib等。
+
+1. 请先在终端中输入`cd mysite`切换到mysite目录
+2. 在终端输入`python3 manage.py runserver 0.0.0.0:8080`启动程序
+3. 在右侧边栏【访问链接】创建访问链接，监听 `8080` 端口，点击链接访问。
+
+## 
+## 
+## 
+##
+##
+##
+##
+## 
+## 
+## 
+## 
 ## 欢迎来到 Cloud Studio
 
 这是一个展现 Cloud Studio 功能的 Python 示例。
