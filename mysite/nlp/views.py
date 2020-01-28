@@ -8,8 +8,8 @@ stopwords_path = r'/home/coding/workspace/mysite/nlp/stopword.txt'
 commentPath = r'/home/coding/workspace/mysite/some/file/comment.txt'
 stopwords = [line.strip() for line in open(
     stopwords_path, 'r', encoding='utf-8').readlines()]
-TFIDF_model = joblib.load(r'/home/coding/workspace/cli/TFIDF.model')
-model = joblib.load(r'/home/coding/workspace/cli/bayes.model')
+TFIDF_model = joblib.load(r'/root/coding/workspace/cli/TFIDF.model')
+model = joblib.load(r'/root/coding/workspace/cli/bayes.model')
 
 
 def del_stopwords(sentence):
