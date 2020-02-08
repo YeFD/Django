@@ -3,7 +3,7 @@
 autoOpen: true # 打开工作空间时是否自动开启所有应用的预览
 apps:
   - port: 8080 # 应用的端口
-    run: python3 /root/workspace/mysite/manage.py runserver 0.0.0.0:8080 # 应用的启动命令
+    run:  # 应用的启动命令 python3 /root/workspace/mysite/manage.py runserver 0.0.0.0:8080
     root: mysite # 应用的启动目录
     name: mysite # 应用名称
     description: website # 应用描述
