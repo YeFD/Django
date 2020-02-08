@@ -29,4 +29,4 @@ print("您的IP是：" + get_host_ip())
 # django-admin.py startproject mysite
 # python3 manage.py startapp nlp
 # 2
-# sklearn joblib jieba django
+# sklearn joblib jieba django 
