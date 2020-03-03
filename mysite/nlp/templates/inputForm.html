@@ -44,15 +44,16 @@
 										<i class="el-icon-upload"></i>
                                     <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
                                     <div class="el-upload__tip">只能上传txt文件，且不超过500kb</div>
-                                </el-upload>
-                            </div>
-                        </el-col>
+                  </el-upload>
+                </div>
+                <div id="vis"></div>
+              </el-col>
 
-                        <el-col :span="6">
-                            <div class="grid-content bg-purple"></div>
-                        </el-col>
-                    </el-row>
-                    
+              <el-col :span="6">
+                <div class="grid-content bg-purple"></div>
+              </el-col>
+            </el-row>
+            
 
                 </el-tab-pane>
                 <el-row type="flex" class="row-bg" justify="center">
@@ -65,6 +66,7 @@
                                 v-model="value"
                                 disabled
                                 show-score
+                                :colors="colors"
                                 text-color="#ff9900"
                                 score-template="{value}">
                         </el-rate>
@@ -83,6 +85,8 @@
 
 
     </el-container>
+    <!-- 右下角的一个2D人物 -->
+    <!-- <div id="page_end_html"><script src="https://cdn.jsdelivr.net/npm/live2d-widget@3.0.4/lib/L2Dwidget.min.js"></script> <script type="text/javascript"> L2Dwidget.init(); </script></div> -->
 </div>
 </body>
 <!-- import Vue before Element -->
@@ -90,8 +94,11 @@
 <!-- import JavaScript -->
 <script src="https://cdn.bootcss.com/element-ui/2.12.0/index.js"></script>
 <script src="https://cdn.staticfile.org/axios/0.18.0/axios.min.js"></script>
+<script src="/static/d3.js"></script>
+<script src="/static/build/d3.layout.cloud.js"></script>
 <script>
     var i = -1;
+    ls = new Array;
     var arr = [0, 1, 2, 3, 4, 5 ,6];
     function randomsort(a, b) {
         return Math.random()>.5 ? -1 : 1;
@@ -112,7 +119,8 @@
                 visible: false,
                 textarea:'',
                 value:0,
-                url:"https://ftp.bmp.ovh/imgs/2019/10/21f9a00cab7d11a0.png"
+                url:"https://ftp.bmp.ovh/imgs/2019/10/21f9a00cab7d11a0.png",
+                colors: ['#99A9BF', '#F7BA2A', '#FF9900'],
             }
         },
         methods:{
@@ -132,7 +140,9 @@
             },
             uploadSuccess (response, file, fileList) {
                 console.log('上传文件', response)
-                this.value=response;
+                this.value=response['Star'];
+                ls = response['ls'].reverse();
+                doit();
                 this.$message({type: 'success',message: '分析成功!'});
             },
             uploadError (response, file, fileList) {
@@ -175,6 +185,43 @@
             }
         }
     })
+    doit=function(){
+            document.getElementById('vis').innerHTML = "";
+            var fill = d3.scale.category20();
+            
+            var layout = d3.layout.cloud()
+                .size([500, 500])
+                .words(ls.map(function(d,index) {
+                  return {text: d, size: 10 + index * 10};
+                }))
+                .padding(5)
+                .rotate(function() { return ~~(Math.random() * 2) * 90; })
+                .font("Impact")
+                .fontSize(function(d) { return d.size; })
+                .on("end", draw);
+            
+            layout.start();
+            
+            function draw(words) {
+              d3.select("#vis").append("svg")
+                  .attr("width", layout.size()[0])
+                  .attr("height", layout.size()[1])
+                .append("g")
+                  .attr("transform", "translate(" + layout.size()[0] / 2 + "," + layout.size()[1] / 2 + ")")
+                .selectAll("text")
+                  .data(words)
+                .enter().append("text")
+                  .style("font-size", function(d) { return d.size + "px"; })
+                  .style("font-family", "Impact")
+                  .style("fill", function(d, i) { return fill(i); })
+                  .attr("text-anchor", "middle")
+                  .attr("transform", function(d) {
+                    return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
+                  })
+                  .text(function(d) { return d.text; });
+            }
+            
+        }
 </script>
 <style>
     .el-row {

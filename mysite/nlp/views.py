@@ -3,6 +3,8 @@ from django.http import HttpResponse
 # from django.shortcuts import HttpResponse
 import joblib
 import jieba
+import jieba.analyse as analyse
+import json
 # Create your views here.
 stopwords_path = r'/root/workspace/mysite/nlp/stopword.txt'
 commentPath = r'/root/workspace/mysite/some/file/comment.txt'
@@ -62,13 +64,14 @@ def UploadFile(request):
         sentence = f.read()
         sentence = sentence.decode("utf-8")
         sentenceList = sentence.split('\n')
-        List = getScoreList(sentenceList)
+        List, ls = getScoreList(sentenceList)
         sum = 0.0
         for score in List:
             sum += score * 5
-        Star = round(sum / len(List), 1)
-        response = HttpResponse()
-        response.content = Star  # 这里返回满分为五分的评分
+        Star = round(sum / len(List), 1)  # 这里返回满分为五分的评分
+        temp = {'Star':Star, 'ls':ls}
+        content = json.dumps(temp)
+        response = HttpResponse(content=content, content_type='application/json')
         return response
     # return render(request, "UploadFile.html", {"data": "0"})
     # from django import forms
@@ -114,13 +117,15 @@ def txtScore():
 
 def getScoreList(sentenceList):
     sentenceCut = cut_words(sentenceList)
+    sentence_all = ' '.join(sentenceCut)
     dataTFIDF = TFIDF_model.transform(sentenceCut)
     predictPro = model.predict_proba(dataTFIDF)
     temp = []
+    tags = analyse.extract_tags(sentence_all, topK=10, withWeight=False)
     for predict in predictPro:
         temp.append(predict[1])
     # print(temp)
-    return temp
+    return temp, tags
 
 
 def UploadText(request):
