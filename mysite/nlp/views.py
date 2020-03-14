@@ -72,7 +72,6 @@ def UploadText(request):
         scoreList, tags = getScoreListAndTag(sentenceList)
         star = round(scoreList[0] * 5, 1)
         temp = {'Star':star, 'Tags':tags}
-        print(temp)
         content = json.dumps(temp)
         response = HttpResponse(content=content, content_type='application/json')
         return response
