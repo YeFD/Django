@@ -53,7 +53,7 @@ def UploadFile(request):
         sentence = f.read()
         sentence = sentence.decode("utf-8")
         sentenceList = sentence.split('\n')
-        List, tags = getScoreAndTag(sentenceList)
+        List, tags = getScoreListAndTag(sentenceList)
         sum = 0.0
         for score in List:
             sum += score * 5
@@ -72,6 +72,7 @@ def UploadText(request):
         scoreList, tags = getScoreListAndTag(sentenceList)
         star = round(scoreList[0] * 5, 1)
         temp = {'Star':star, 'Tags':tags}
+        print(temp)
         content = json.dumps(temp)
         response = HttpResponse(content=content, content_type='application/json')
         return response
