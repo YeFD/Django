@@ -133,7 +133,10 @@
                     var params = new URLSearchParams();
                     params.append('sentence', this.textarea);
                     axios.post("/UploadText/",params).then((response)=>{
-                    this.value=response.data;
+                    console.log('上传文本', response)
+                    this.value=response.data['Star'];
+                    ls = response.data['Tags'].reverse();
+                    doit();
                     this.$message({type: 'success',message: '分析成功!'});
                     });
                 }
@@ -141,7 +144,7 @@
             uploadSuccess (response, file, fileList) {
                 console.log('上传文件', response)
                 this.value=response['Star'];
-                ls = response['ls'].reverse();
+                ls = response['Tags'].reverse();
                 doit();
                 this.$message({type: 'success',message: '分析成功!'});
             },
