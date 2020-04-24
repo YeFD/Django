@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse
+from django.http import JsonResponse
 # from django.shortcuts import HttpResponse
 import joblib
 import jieba
@@ -81,5 +82,20 @@ def inputForm(request):
     return render(request, "inputForm.html")
 
 
+def getPost(request):
+    if request.method == 'POST':
+        try:
+            req = json.loads(request.body)
+            sentence = req['text']
+            sentenceList = []
+            sentenceList.append(sentence)
+            scoreList, tags = getScoreListAndTag(sentenceList)
+            return JsonResponse({'state':1, 'score':scoreList, 'tags':tags})
+        except Exception as e:
+            return JsonResponse({'state':0})
+    else:
+        return JsonResponse({'state':0})
+ 
+ 
 # cd mysite
 # python3 manage.py runserver 0.0.0.0:8080
