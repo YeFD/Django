@@ -8,11 +8,15 @@ import jieba.analyse as analyse
 import json
 import os
 # Create your views here.
-curPath = os.getcwd()
-stopwords_path = './nlp/stopword.txt'
+curPath = os.path.dirname(__file__)  # Python/mysite/nlp
+parPath = os.path.abspath(os.path.join(curPath, os.pardir))  # Python/mysite
+parPath2 = os.path.abspath(os.path.join(parPath, os.pardir))  # Python/mysite
+# print(curPath, parPath, parPath2)
+stopwords_path = curPath + '/stopword.txt'
+# stopwords_path = r'/root/workspace/mysite/nlp/stopword.txt'
 stopwords = [line.strip() for line in open(stopwords_path, 'r', encoding='utf-8').readlines()]
-TFIDF_model = joblib.load(r'/root/workspace/cli/TFIDF.model')
-model = joblib.load(r'/root/workspace/cli/bayes.model')
+TFIDF_model = joblib.load(parPath2 + '/cli/TFIDF.model')
+model = joblib.load(parPath2 + '/cli/bayes.model')
 
 minLen=5 # 允许展示词云图的最小长度
 
