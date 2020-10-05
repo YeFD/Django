@@ -6,11 +6,11 @@ import joblib
 import jieba
 import jieba.analyse as analyse
 import json
+import os
 # Create your views here.
-stopwords_path = r'/root/workspace/mysite/nlp/stopword.txt'
-commentPath = r'/root/workspace/mysite/some/file/comment.txt'
-stopwords = [line.strip() for line in open(
-    stopwords_path, 'r', encoding='utf-8').readlines()]
+curPath = os.getcwd()
+stopwords_path = './nlp/stopword.txt'
+stopwords = [line.strip() for line in open(stopwords_path, 'r', encoding='utf-8').readlines()]
 TFIDF_model = joblib.load(r'/root/workspace/cli/TFIDF.model')
 model = joblib.load(r'/root/workspace/cli/bayes.model')
 
