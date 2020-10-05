@@ -14,6 +14,7 @@ stopwords = [line.strip() for line in open(stopwords_path, 'r', encoding='utf-8'
 TFIDF_model = joblib.load(r'/root/workspace/cli/TFIDF.model')
 model = joblib.load(r'/root/workspace/cli/bayes.model')
 
+minLen=5 # 允许展示词云图的最小长度
 
 def del_stopwords(sentence):
     result = []
@@ -90,12 +91,10 @@ def getPost(request):
             sentenceList = []
             sentenceList.append(sentence)
             scoreList, tags = getScoreListAndTag(sentenceList)
-            return JsonResponse({'state':1, 'score':scoreList, 'tags':tags})
+            return JsonResponse({'state':1, 'score':scoreList[0], 'tags':tags})
         except Exception as e:
             return JsonResponse({'state':0})
     else:
         return JsonResponse({'state':0})
- 
- 
 # cd mysite
 # python3 manage.py runserver 0.0.0.0:8080

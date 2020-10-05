@@ -7,6 +7,5 @@ urlpatterns = [
     path('UploadFile/', views.UploadFile, name='UploadFile'),
     path('UploadText/', views.UploadText, name='UploadText'),
     # path('inputForm/', views.inputForm, name='inputForm'),
-    # path('api/', views.post),
     path('api/', views.getPost),
-]
+    ]
