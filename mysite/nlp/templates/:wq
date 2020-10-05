@@ -207,7 +207,7 @@
             var layout = d3.layout.cloud()
                 .size([500, 500])
                 .words(ls.map(function(d,index) {
-                  return {text: d, size: 30 + index * 4};
+                  return {text: d, size: 50 + index * 3};
                 }))
                 .padding(5)
                 .rotate(function() { return ~~(Math.random() * 2) * 90; })

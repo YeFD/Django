@@ -120,5 +120,5 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = (
-"/home/coding/workspace/mysite/nlp/static/nlp/image",  
+os.path.join(BASE_DIR, "static"),
 )
