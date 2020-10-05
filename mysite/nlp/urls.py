@@ -8,4 +8,9 @@ urlpatterns = [
     path('UploadText/', views.UploadText, name='UploadText'),
     # path('inputForm/', views.inputForm, name='inputForm'),
     path('api/', views.getPost),
+    path('forecast_es/', views.forecast_es),
+    path('forecast_es_index/', views.forecast_es_index),
+    path('forecast_arima_214/', views.forecast_arima_214),
+    path('initModel_arima_010/', views.initModel_arima_010),
+    path('forecast_arima_010/', views.forecast_arima_010)
     ]

@@ -45,6 +45,7 @@ web 目录下有用 Python 编写的 Web 代码，我们以此为例展示如何
 1. 请先在终端中输入 `cd web` 切换到 web 示例目。
 
 2. 在终端中运行 `cat requirements.txt | xargs sudo pip install -i http://pypi.douban.com/simple --trusted-host pypi.douban.com` 安装依赖。
+    `pip3 install -i https://pypi.douban.com/simple statsmodels`
 
 3. 在终端中运行 `python app.py` 启动程序。
 

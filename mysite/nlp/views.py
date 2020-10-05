@@ -7,6 +7,10 @@ import jieba
 import jieba.analyse as analyse
 import json
 import os
+from statsmodels.tsa.api import ExponentialSmoothing
+import statsmodels.api as sm
+import numpy as np
+
 # Create your views here.
 curPath = os.path.dirname(__file__)  # Python/mysite/nlp
 parPath = os.path.abspath(os.path.join(curPath, os.pardir))  # Python/mysite
@@ -19,6 +23,7 @@ TFIDF_model = joblib.load(parPath2 + '/cli/TFIDF.model')
 model = joblib.load(parPath2 + '/cli/bayes.model')
 
 minLen=5 # 允许展示词云图的最小长度
+arimaModel = None
 
 def del_stopwords(sentence):
     result = []
@@ -100,5 +105,106 @@ def getPost(request):
             return JsonResponse({'state':0})
     else:
         return JsonResponse({'state':0})
+
+
+def forecast_es(request):
+    if request.method == "POST":
+        try:
+            req = json.loads(request.body)
+            data = req["data"]
+            period = req["period"]
+            num = req["num"]
+            model = ExponentialSmoothing(np.asarray(data),
+                             seasonal_periods=period,
+                             trend='add',
+                             seasonal='add').fit()
+            forecast = model.forecast(num)
+            # print(data, period, num, forecast)
+            return JsonResponse({'state':0, 'forecast': list(forecast)})
+        except Exception as e:
+            print(e)
+            return JsonResponse({'state': 500})
+    else:
+        return JsonResponse({'state': 400})
+
+
+def forecast_es_index(request):
+    if request.method == "POST":
+        try:
+            req = json.loads(request.body)
+            data = req["data"]
+            period = req["period"]
+            index = req["index"]
+            model = ExponentialSmoothing(np.asarray(data),
+                             seasonal_periods=period,
+                             trend='add',
+                             seasonal='add').fit()
+            forecast = model.forecast(index + 1)
+            return JsonResponse({'state':0, 'forecast': forecast[index]})
+        except Exception as e:
+            print(e)
+            return JsonResponse({'state': 500})
+    else:
+        return JsonResponse({'state': 400})
+
+
+def forecast_arima_214(request):
+    if request.method == "POST":
+        try:
+            req = json.loads(request.body)
+            data = req["data"]
+            period = req["period"]
+            num = req["num"]
+            model = sm.tsa.statespace.SARIMAX(data,
+                                 order=(2, 1, 4),
+                                 seasonal_order=(0, 1, 1,period)).fit()
+            forecast = model.forecast(num)
+            # print(data, period, num, forecast)
+            return JsonResponse({'state':0, 'forecast': list(forecast)})
+        except Exception as e:
+            print(e)
+            return JsonResponse({'state': 500})
+    else:
+        return JsonResponse({'state': 400})
+
+
+def initModel_arima_010(request):
+    if request.method == "POST":
+        try:
+            req = json.loads(request.body)
+            data = req["data"]
+            period = req["period"]
+            num = req["num"]
+            arimaModel = sm.tsa.statespace.SARIMAX(data,
+                                 order=(0, 1, 0),
+                                 seasonal_order=(0, 1, 1,period)).fit()
+            # print(data, period, num, forecast)
+            return JsonResponse({'state':0})
+        except Exception as e:
+            print(e)
+            return JsonResponse({'state': 500})
+    else:
+        return JsonResponse({'state': 400})
+
+
+def forecast_arima_010(request):
+    if request.method == "POST":
+        try:
+            req = json.loads(request.body)
+            data = req["data"]
+            period = req["period"]
+            num = req["num"]
+            if arimaModel == None:
+                return JsonResponse({'state': 1})
+            forecast = arimaModel.forecast(num)
+            # print(data, period, num, forecast)
+            return JsonResponse({'state':0})
+        except Exception as e:
+            print(e)
+            return JsonResponse({'state': 500, 'forecast': list(forecast)})
+    else:
+        return JsonResponse({'state': 400})
+    
+
 # cd mysite
 # python3 manage.py runserver 0.0.0.0:8080
