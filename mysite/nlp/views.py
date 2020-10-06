@@ -111,6 +111,7 @@ def forecast_es(request):
     if request.method == "POST":
         try:
             req = json.loads(request.body)
+            print(req)
             data = req["data"]
             period = req["period"]
             num = req["num"]
@@ -119,7 +120,7 @@ def forecast_es(request):
                              trend='add',
                              seasonal='add').fit()
             forecast = model.forecast(num)
-            # print(data, period, num, forecast)
+            print(data, period, num, forecast)
             return JsonResponse({'state':0, 'forecast': list(forecast)})
         except Exception as e:
             print(e)
