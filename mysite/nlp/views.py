@@ -205,7 +205,7 @@ def forecast_arima_010(request):
             return JsonResponse({'state': 500, 'forecast': list(forecast)})
     else:
         return JsonResponse({'state': 400})
-    
+
 
 # cd mysite
 # python3 manage.py runserver 0.0.0.0:8080
