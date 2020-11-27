@@ -6,18 +6,18 @@
 	<meta charset="UTF-8">
 	<!-- import CSS -->
 	<title>简单的自然语言处理</title>
-	<link rel="stylesheet" href="https://cdn.bootcss.com/element-ui/2.12.0/theme-chalk/index.css">
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
 </head>
 
 <body>
 	<div id="app" style="width: 800px;height: 600px;text-align:center;margin: 0 auto;">
-		<el-container>
+        <el-container>
 			<el-main>
 				<el-tabs type="border-card">
                     <!-- 第一个标签页 -->
 					<el-tab-pane label="输入文本">
 						<el-row type="flex" class="row-bg">
-							<el-input type="textarea" :rows="10" placeholder="请输入内容" v-model="textarea" name="sentence">
+							<el-input type="textarea" :rows="3" placeholder="请输入内容" v-model="textarea" name="sentence">
 							</el-input>
 						</el-row>
 						<el-row type="flex" justify="start">
@@ -55,19 +55,19 @@
 
                     <el-row type="flex" class="row-bg" justify="center">
                         <el-col :span="8">
-                            <div></div>
                         </el-col>
                         <el-col :span="8">
-                            <el-rate
-                                v-model="value"
-                                disabled
-                                show-score
-                                :colors="colors"
-                                text-color="#ff9900"
-                                score-template="{value}">
-                            </el-rate>
+                                <div class="block" v-for="word in words" :key="word">
+                                         index{{word}}{{ fits }}
+                                        <!-- <el-image
+                                          style="width: 100px; height: 100px"
+                                          :src="url"
+                                          :fit="fit"></el-image> -->
+                                </div>
+                                <div v-for="i in [1, 2, 3, 4, 5]" :key="i">
+                                    g<span>{{num}} </span>
+                                </div>
                         </el-col>
-                        <el-col :span="0"></el-col>
                         <el-col :span="8"></el-col>
                     </el-row>
             </el-tabs>
@@ -79,11 +79,12 @@
 
 </body>
 <!-- import Vue before Element -->
-<script src="https://cdn.bootcss.com/vue/2.6.9/vue.min.js"></script>
+<script src="https://unpkg.com/vue/dist/vue.js"></script>
 <!-- import JavaScript -->
-<script src="https://cdn.bootcss.com/element-ui/2.12.0/index.js"></script>
+<script src="https://unpkg.com/element-ui/lib/index.js"></script>
 <script src="https://cdn.staticfile.org/axios/0.18.0/axios.min.js"></script>
 <script>
+    
     var i = -1;
     ls = new Array;
     var arr = [0, 1, 2, 3, 4, 5 ,6];
@@ -99,6 +100,7 @@
     sample[4] = "巨大的噪声吵醒了熟睡的我"
     sample[5] = "巨大的噪声吵醒了熟睡的我"
     sample[6] = "巨大的噪声吵醒了熟睡的我"
+    fits = "123"
 
     new Vue({
         el: '#app',
@@ -107,13 +109,15 @@
                 visible: false,
                 textarea:'',
                 value:0,
-                url:"https://ftp.bmp.ovh/imgs/2019/10/21f9a00cab7d11a0.png",
                 colors: ['#99A9BF', '#F7BA2A', '#FF9900'],
-                words: [],
-                result: [],
-                error: [],
-                flags: [],
-                flags2: []
+                words: ["1", "2"],
+                result: ["主语", "谓语"],
+                error: ["error1", "error2"],
+                flags: ["n", "v"],
+                flags2: ["名词", "动词"],
+                fits: ['fill', 'contain', 'cover', 'none', 'scale-down'],
+                msg: 'Hello Vue!',
+                num: 0
             }
         },
         methods:{

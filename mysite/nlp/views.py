@@ -253,7 +253,6 @@ def read_dict(path):
             word_flag.append(word[2])
             # if word[2] not in flags:
             # flags.append(word[2])
-        # print(len(flagList), len(flags), flags)
     return word_dict, word_freq, word_flag
 
 word_dict, word_freq, word_flag = read_dict(path)
@@ -363,6 +362,7 @@ class Sentence:
         self.error = []
 
     def analyze(self, words, flags):
+        print(words, flags)
         self.words = words
         self.flags = flags
         self.index = 0
@@ -378,18 +378,18 @@ class Sentence:
         return self.result, self.error
 
     def questions(self):
-        if "y" in flags:
+        if "y" in self.flags:
             self.declarative_sentence()
             self.Y()
-        elif "sf" in flags:
+        elif "sf" in self.flags:
             self.SF()
             self.declarative_sentence()
 
     def declarative_sentence(self):
         # 陈述句
-        if "ba" in flags:
+        if "ba" in self.flags:
             self.sentence_ba()
-        elif "bei" in flags:
+        elif "bei" in self.flags:
             self.sentence_bei()
         else:
             self.sentence_normal()
@@ -425,9 +425,8 @@ class Sentence:
         self.Object()  # 宾语
 
     def getToken(self, i):
-        if i < len(words):
-            # result = (words[i], flags[i])
-            return words[i], flags[i]
+        if i < len(self.words):
+            return self.words[i], self.flags[i]
         else:
             return "#", "#"
 
@@ -618,10 +617,10 @@ def analyze(request):
             # sentence = req["sentence"]
             # sentenceList = sentence.split("。")
             words, flags = BiMM(s)
-            print(words, flags)
             sentence = Sentence()
             result, error = sentence.analyze(words, flags)
-            flag2 = getFlag(flags)
+            print(result, error)
+            flags2 = getFlag(flags)
             return JsonResponse({'state': 0, 'words': words, 'flags': flags, 'result': result, 'error': error, 'flags2': flags2})
         except Exception as e:
             print(e)
