@@ -1,29 +1,201 @@
+{% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html>
+
 <head>
-    <meta charset="UTF-8">
-    <title>test</title>
+	<meta charset="UTF-8">
+	<!-- import CSS -->
+	<title>简单的自然语言处理</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
 </head>
+
 <body>
-    <h1 style="background-color: antiquewhite;color: black;">hello world</h1>
-    <form action="/index/" method="post">
-        {% csrf_token %}
-        <input type="text" name="sentence"/>
-        <input type="submit" value="submit"/>
-    </form>
-    <hr />
-    <h1 style="">tips</h1>
-    <table border="1">
-        <thead>
-            <th>sentence</th>
-        </thead>
-        <tbody>
-            {% for line in data %}
-                <tr>
-                    <td>{{ line }}</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+	<div id="app" style="width: 800px;height: 600px;text-align:center;margin: 0 auto;">
+        <el-container>
+			<el-main>
+				<el-tabs type="border-card">
+                    <!-- 第一个标签页 -->
+					<el-tab-pane label="输入文本">
+						<el-row type="flex" class="row-bg">
+							<el-input type="textarea" :rows="3" placeholder="请输入内容" v-model="textarea" name="sentence">
+							</el-input>
+						</el-row>
+						<el-row type="flex" justify="start">
+							<el-col :span="1">
+								<el-tooltip class="item" effect="dark" content="随机示例" placement="bottom-start">
+									<el-button type="info" icon="el-icon-refresh" id="random" @click="randomSample" plain>随机示例</el-button>
+								</el-tooltip>
+							</el-col>
+							<el-col :span="8" :offset="7">
+								<el-button type="primary" icon="el-icon-s-promotion" name="submit" @click="onSubmit" plain>分析</el-button>
+							</el-col>
+						</el-row>
+                    </el-tab-pane>
+                    <!-- 第二个标签页 -->
+					<el-tab-pane label="上传文本">
+						<el-row type="flex" class="row-bg">
+							<el-col :span="6">
+								<div class="grid-content bg-purple"></div>
+							</el-col>
+							<el-col :span="6">
+								<div class="grid-content bg-purple-light">
+									<el-upload class="upload-demo" drag action="/UploadFile/" multiple name="TxtFile" accept=".txt" :on-success="uploadSuccess"
+									 :on-error="uploadError">
+										<i class="el-icon-upload"></i>
+                                        <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+                                        <div class="el-upload__tip">只能上传txt文件，且不超过500kb</div>
+                                    </el-upload>
+                                </div>
+                            </el-col>
+                            <el-col :span="6">
+                                <div class="grid-content bg-purple"></div>
+                            </el-col>
+                        </el-row>
+                    </el-tab-pane>
+
+                    <el-row type="flex" class="row-bg" justify="center">
+                        <el-col :span="8">
+                        </el-col>
+                        <el-col :span="8">
+                                <div class="block" v-for="word in words" :key="word">
+                                         index{{word}}{{ fits }}
+                                        <!-- <el-image
+                                          style="width: 100px; height: 100px"
+                                          :src="url"
+                                          :fit="fit"></el-image> -->
+                                </div>
+                                <div v-for="i in [1, 2, 3, 4, 5]" :key="i">
+                                    g<span>{{num}} </span>
+                                </div>
+                        </el-col>
+                        <el-col :span="8"></el-col>
+                    </el-row>
+            </el-tabs>
+        </el-main>
+    </el-container>
+    <!-- 右下角的一个2D人物 -->
+    <!-- <div id="page_end_html"><script src="https://cdn.jsdelivr.net/npm/live2d-widget@3.0.4/lib/L2Dwidget.min.js"></script> <script type="text/javascript"> L2Dwidget.init(); </script></div> -->
+</div>
+
 </body>
+<!-- import Vue before Element -->
+<script src="https://unpkg.com/vue/dist/vue.js"></script>
+<!-- import JavaScript -->
+<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+<script src="https://cdn.staticfile.org/axios/0.18.0/axios.min.js"></script>
+<script>
+    
+    var i = -1;
+    ls = new Array;
+    var arr = [0, 1, 2, 3, 4, 5 ,6];
+    function randomsort(a, b) {
+        return Math.random()>.5 ? -1 : 1;
+    }
+    arr.sort(randomsort);//随机打乱
+    sample = new Array;
+    sample[0] = "我是计算机专业的学生"
+    sample[1] = "小明喜欢打篮球"
+    sample[2] = "巨大的噪声吵醒了熟睡的我"
+    sample[3] = "巨大的噪声吵醒了熟睡的我"
+    sample[4] = "巨大的噪声吵醒了熟睡的我"
+    sample[5] = "巨大的噪声吵醒了熟睡的我"
+    sample[6] = "巨大的噪声吵醒了熟睡的我"
+    fits = "123"
+
+    new Vue({
+        el: '#app',
+        data: function () {
+            return {
+                visible: false,
+                textarea:'',
+                value:0,
+                colors: ['#99A9BF', '#F7BA2A', '#FF9900'],
+                words: ["1", "2"],
+                result: ["主语", "谓语"],
+                error: ["error1", "error2"],
+                flags: ["n", "v"],
+                flags2: ["名词", "动词"],
+                fits: ['fill', 'contain', 'cover', 'none', 'scale-down'],
+                msg: 'Hello Vue!',
+                num: 0
+            }
+        },
+        methods:{
+            onSubmit(){
+                if (this.textarea == "") {
+                    this.$message.error('分析内容不能为空');
+                } else if (this.textarea.length <= 3) {
+                    this.$message.error('分析内容过短');
+                } else {
+                    var params = new URLSearchParams();
+                    params.append('sentence', this.textarea);
+                    axios.post("/analyze/",params).then((response)=>{
+                        console.log('上传文本', response)
+                        this.$message({type: 'success',message: '分析成功!'});
+                    });
+                }
+            },
+            uploadSuccess (response, file, fileList) {
+                console.log('上传文件', response)
+                this.value=response['Star'];
+                ls = response['Tags'].reverse();
+                this.$message({type: 'success',message: '分析成功!'});
+            },
+            uploadError (response, file, fileList) {
+                this.$alert('请检查上传txt文件是否为UTF-8编码', '上传失败',{
+                  confirmButtonText: '确定',
+                  type: 'error',
+                  center: true
+                })
+                console.log('上传文件', response);
+            },
+            
+            randomSample(){
+                var t=document.getElementById("txt");
+                i = (i + 1) % 7;
+                x = arr[i];
+                this.textarea = sample[x]
+                switch(x) {
+                    case 0:
+                        this.$message('此评价来自华为 Mate30，评价星级为 5 星');
+                        break;
+                    case 1:
+                        this.$message('此评价来自十字勋章 双肩包，评价星级为 3 星');
+                        break;
+                    case 2:
+                        this.$message('此评价来自巧谷 女式外套，评价星级为 5 星');
+                        break;
+                    case 3:
+                        this.$message('此评价来自西门子 冰箱，评价星级为 1 星');
+                        break;
+                    case 4:
+                        this.$message('此评价来自三星 星耀7 笔记本，评价星级为 1 星');
+                        break;
+                    case 5:
+                        this.$message('此评价来自三星 星耀pen 翻转本，评价星级为 1 星');
+                        break;
+                    case 6:
+                        this.$message('此评价来自《创业者：不一样的孙陶然》，评价星级为 5 星');
+                        break;
+                }
+            }
+        }
+    })
+</script>
+<style>
+    .el-row {
+        margin-bottom: 20px;
+    }
+
+    .el-col {
+        border-radius: 4px;
+    }
+
+    .el-tabs {
+        background-image:url(https://s2.ax1x.com/2019/10/06/u62vOs.png);
+        background-size:120px 130px;
+        background-repeat:no-repeat;
+        background-position:bottom right
+    }
+</style>
 </html>

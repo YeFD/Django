@@ -11,12 +11,14 @@ from statsmodels.tsa.api import ExponentialSmoothing
 import statsmodels.api as sm
 import numpy as np
 
+
 # Create your views here.
 curPath = os.path.dirname(__file__)  # Python/mysite/nlp
 parPath = os.path.abspath(os.path.join(curPath, os.pardir))  # Python/mysite
 parPath2 = os.path.abspath(os.path.join(parPath, os.pardir))  # Python/mysite
 # print(curPath, parPath, parPath2)
 stopwords_path = curPath + '/stopword.txt'
+path = curPath + "/static/dict_small.txt"
 # stopwords_path = r'/root/workspace/mysite/nlp/stopword.txt'
 stopwords = [line.strip() for line in open(stopwords_path, 'r', encoding='utf-8').readlines()]
 TFIDF_model = joblib.load(parPath2 + '/cli/TFIDF.model')
@@ -91,6 +93,8 @@ def UploadText(request):
 def inputForm(request):
     return render(request, "inputForm.html")
 
+def index(request):
+    return render(request, "index.html")
 
 def getPost(request):
     if request.method == 'POST':
@@ -205,7 +209,421 @@ def forecast_arima_010(request):
             return JsonResponse({'state': 500, 'forecast': list(forecast)})
     else:
         return JsonResponse({'state': 400})
-    
+
 
 # cd mysite
 # python3 manage.py runserver 0.0.0.0:8080
+
+# path = "./static/dict_small.txt"
+maxSize = 5
+
+flagList = {"n": "n", "f": "n", "s": "n", "t": "n",
+            "nr": "n", "ns": "n", "nt": "n", "nw": "n",
+            "nz": "n", "v": "v", "vd": "v", "vn": "vn",
+            "a": "adj", "ad": "adj", "an": "adj", "d": "adv",
+            "m": "adj", "q": "adj", "r": "r", "p": "p",
+            "c": "连词", "u": "助词", "xc": "助词", "w": "标点符号",
+            "uj": "助词", "ul": "助词", "uz": "助词", "uv": "助词",
+            "ud": "助词", "ug": "助词", "e": "语气助词", "k": "n",
+            "b": "adj", "y": "y", "j": "n", "ng": "n",
+            "h": "adj", "df": "v", "z": "n", "l": "n",
+            "vg": "v", "tg": "n", "nrt": "n", "rz": "r",
+            "nrfg": "n", "ag": "adj", "g": "n", "mq": "r",
+            "x": "n", "dg": "n", "i": "n", "o": "adv",
+            "rr": "r", "vq": "v", "rg": "n", "mg": "n",
+            "vi": "v",
+            "zg": "n", "none": "符号", "de": "de", "le": "le",
+            "di": "di", "cc": "cc", "#": "#"}
+
+flagList2 = {
+    "n": "名词", "r": "代词", "adj": "形容词", "de": "的", "adv": "副词",
+    "di": "地", "cc": "并列连词", "ba": "把词", "bei": "被词", "qs": "祈使词",
+    "gt": "感叹词", "v": "动词", "p": "介词", "y": "疑问词", "#": "结束", "le": "助词"
+}
+def read_dict(path):
+    word_dict = []
+    word_freq = []
+    word_flag = []
+    with open(path) as file:
+        line = file.readlines()
+        for i in line:
+            word = i.strip().split(' ')
+            word_dict.append(word[0])
+            word_freq.append(int(word[1]))
+            word_flag.append(word[2])
+            # if word[2] not in flags:
+            # flags.append(word[2])
+    return word_dict, word_freq, word_flag
+
+word_dict, word_freq, word_flag = read_dict(path)
+
+def FMM(sentence):
+    words = []
+    flags = []
+    freq = 0
+    index = 0
+    mismatch = 0
+    sentence_len = len(sentence)
+    size = maxSize
+    if sentence_len < maxSize:
+        size = sentence_len
+    while index < sentence_len:
+        match = False
+        for i in range(size, 0, -1):
+            # print(index, index + i, sentence[index: index + i])
+            cur_str = sentence[index: index + i]
+            if cur_str in word_dict:
+                curIndex = word_dict.index(cur_str)
+                words.append(cur_str)
+                freq += word_freq[curIndex]
+                flags.append(flagList[word_flag[curIndex]])
+                index += i
+                match = True
+                break
+        if not match:
+            words.append(sentence[index])
+            index += 1
+            mismatch += 1
+            flags.append("符号")
+    return words, freq, mismatch, flags
+
+
+def BMM(sentence):
+    words = []
+    flags = []
+    freq = 0
+    index = len(sentence)
+    mismatch = 0
+    size = maxSize
+    if index < maxSize:
+        size = index
+    while index > 0:
+        match = False
+        for i in range(size, 0, -1):
+            # print(index, index + i, sentence[index: index + i])
+            cur_str = sentence[index - i: index]
+            if cur_str in word_dict:
+                curIndex = word_dict.index(cur_str)
+                words.append(cur_str)
+                freq += word_freq[curIndex]
+                flags.append(flagList[word_flag[curIndex]])
+                # print(cur_str, flagList[word_flag[curIndex]])
+                index -= i
+                match = True
+                break
+        if not match:
+            # print(sentence[index - 1])
+            words.append(sentence[index - 1])
+            index -= 1
+            mismatch += 1
+            flags.append("符号")
+    words.reverse()
+    flags.reverse()
+    return words, freq, mismatch, flags
+
+
+def BiMM(s):
+    words_FMM, freq_FMM, mismatch_FMM, flags_FMM = FMM(s)
+    words_BMM, freq_BMM, mismatch_BMM, flags_BMM = BMM(s)
+    if words_FMM == words_BMM:
+        return words_FMM, flags_FMM
+    socre_FMM = 0
+    socre_BMM = 0
+    # 词频越多越好
+    if freq_FMM > freq_BMM:
+        socre_FMM += 1
+    elif freq_FMM < freq_BMM:
+        socre_BMM += 1
+    # 不匹配单词越少越好
+    if mismatch_FMM < mismatch_BMM:
+        socre_FMM += 1
+    elif mismatch_FMM > mismatch_BMM:
+        socre_BMM += 1
+    # 总词数越少越好
+    if len(words_FMM) < len(words_BMM):
+        socre_FMM += 1
+    elif len(words_FMM) > len(words_BMM):
+        socre_BMM += 1
+    # print(socre_FMM, socre_BMM)
+    if socre_FMM > socre_BMM:
+        return words_FMM, flags_FMM
+    else:
+        return words_BMM, flags_BMM
+
+class Sentence:
+    result = []
+    error = []
+    token = ""
+    index = 0
+
+    def __init__(self, words=[], flags=[]):
+        self.words = words
+        self.flags = flags
+        self.error = []
+
+    def analyze(self, words, flags):
+        print(words, flags)
+        self.words = words
+        self.flags = flags
+        self.index = 0
+        self.error = []
+        self.token = self.getToken(self.index)
+        self.index += 1
+        if "y" in flags or "sf" in flags:
+            self.questions()  # 疑问句
+        elif "qs" in flags:
+            pass
+        else:
+            self.declarative_sentence()  # 陈述句
+        return self.result, self.error
+
+    def questions(self):
+        if "y" in self.flags:
+            self.declarative_sentence()
+            self.Y()
+        elif "sf" in self.flags:
+            self.SF()
+            self.declarative_sentence()
+
+    def declarative_sentence(self):
+        # 陈述句
+        if "ba" in self.flags:
+            self.sentence_ba()
+        elif "bei" in self.flags:
+            self.sentence_bei()
+        else:
+            self.sentence_normal()
+
+    def sentence_ba(self):
+        self.Attributive()  # 定语
+        self.Subject()  # 主语
+        self.BA()
+        self.Attributive()  # 定语
+        self.Object()  # 宾语
+        self.Adverbial()  # 状语
+        self.Predicate()  # 谓语
+        self.Complement()  # 补语
+        pass
+
+    def sentence_bei(self):
+        self.Attributive()  # 定语
+        self.Object()  # 宾语
+        self.BEI()
+        self.Attributive()  # 定语
+        self.Subject()  # 主语
+        self.Adverbial()  # 状语
+        self.Predicate()  # 谓语
+        self.Complement()  # 补语
+
+    def sentence_normal(self):
+        self.Attributive()  # 定语
+        self.Subject()  # 主语
+        self.Adverbial()  # 状语
+        self.Predicate()  # 谓语
+        self.Complement()  # 补语
+        self.Attributive()  # 定语
+        self.Object()  # 宾语
+
+    def getToken(self, i):
+        if i < len(self.words):
+            return self.words[i], self.flags[i]
+        else:
+            return "#", "#"
+
+    def match(self, type):
+        if self.index > 0:
+            pass
+            # print(self.token)
+        self.token = self.getToken(self.index)
+        self.index += 1
+        # return self.token
+
+    def BA(self):
+        if self.token[1] == "ba":
+            self.match("ba")
+        else:
+            print("不是把")
+
+    def Y(self):
+        if self.token[2] == "y":
+            self.match("y")
+        else:
+            print("not y")
+
+    def SF(self):
+        if self.token[2] == "sf":
+            self.match("sf")
+        else:
+            print("not sf")
+
+    def BEI(self):
+        if self.token[1] == "bei":
+            self.match("bei")
+        else:
+            print("not bei")
+
+    def Attributive(self):
+        # 定语
+        if self.token[1] == "adj":
+            self.ADJP()
+            # print("====定语")
+
+    def ADJP(self):
+        while self.token[1] == "adj":
+            self.ADJ()
+
+    def ADJ(self):
+        self.match("adj")
+        self.result.append("定语")
+        if self.token[1] == "de":
+            self.match("de")
+            self.result.append("定语")
+
+    def Subject(self):
+        # 主语
+        if self.token[1] == "n" or self.token[1] == "vn" \
+                or self.token[1] == "r":
+            self.NP()
+            # print("====主语")
+            # print("====主语")
+        else:
+            self.error.append("缺少主语")
+            print("缺少主语")
+
+    def NP(self):
+        self.NN()
+        while self.token[1] == "cc":
+            self.match("cc")
+            self.result.append("主语")
+            self.NN()
+        if self.token[1] == "etc":
+            self.match("etc")
+            self.result.append("主语")
+
+    def NN(self):
+        while self.token[1] == "n" or self.token[1] == "vn" \
+                or self.token[1] == "r":
+            self.match("n")
+            self.result.append("主语")
+
+    def Adverbial(self):
+        # 状语
+        if self.token[1] == "adv":
+            self.ADVP()
+            # print("====状语")
+
+    def ADVP(self):
+        while self.token[1] == "adv":
+            self.ADV()
+
+    def ADV(self):
+        self.match("adv")
+        self.result.append("状语")
+        if self.token[1] == "di":
+            self.match("di")
+            self.result.append("状语")
+
+    def Predicate(self):
+        # 谓语
+        if self.token[1] == "v" or self.token[1] == "vn":
+            self.VP()
+            # print("====谓语")
+        else:
+            self.error.append("缺少谓语")
+            print("缺少谓语")
+
+    def VP(self):
+        while self.token[1] == "v" or self.token[1] == "vn":
+            self.match("v")
+            self.result.append("谓语")
+
+    def Complement(self):
+        # 补语
+        if self.token[1] == "le":
+            self.match("le")
+            self.result.append("补语")
+            # print("====补语")
+
+    def Object(self):
+        # 宾语
+        if self.token[1] == "n" or self.token[1] == "vn" \
+                or self.token[1] == "p":
+            self.P()
+            self.NP2()
+            # print("====宾语")
+        elif self.token[1] == "r":
+            self.match("r")
+            self.result.append("宾语")
+            # print("====宾语")
+        else:
+            self.error.append("缺少宾语")
+            print("缺少宾语")
+
+    def P(self):
+        if self.token[1] == "p":
+            self.match("p")
+            self.result.append("宾语")
+
+    def NP2(self):
+        self.NN2()
+        while self.token[1] == "cc":
+            self.match("cc")
+            self.result.append("并列连词")
+            self.NN2()
+        if self.token[1] == "etc":
+            self.match("etc")
+            self.result.append("省略词")
+
+    def NN2(self):
+        while self.token[1] == "n" or self.token[1] == "vn":
+            self.match("n")
+            self.result.append("宾语")
+
+
+def getFlag(flags):
+    flags2 = []
+    for flag in flags:
+        if flag not in flagList2.keys():
+            flags2.append("")
+            print(flag)
+        else:
+            flags2.append(flagList2[flag])
+    return flags2
+
+def cut(request):
+    if request.method == "POST":
+        try:
+            req = json.loads(request.body)
+            sentence = req["sentence"]
+            sentenceList = sentence.split("。")
+            words = []
+            flags = []
+            for s in sentenceList:
+                w, f = BiMM(s)
+                words.append(w)
+                flags.append(f)
+            return JsonResponse({'state': 0, 'words': words, 'flags': flags})
+        except Exception as e:
+            print(e)
+            return JsonResponse({'state': 500})
+    else:
+        return JsonResponse({'state': 400})
+            
+def analyze(request):
+    if request.method == "POST":
+        try:
+            s = request.POST.get("sentence", None)
+            # req = json.loads(request.body)
+            # sentence = req["sentence"]
+            # sentenceList = sentence.split("。")
+            words, flags = BiMM(s)
+            sentence = Sentence()
+            result, error = sentence.analyze(words, flags)
+            print(result, error)
+            flags2 = getFlag(flags)
+            return JsonResponse({'state': 0, 'words': words, 'flags': flags, 'result': result, 'error': error, 'flags2': flags2})
+        except Exception as e:
+            print(e)
+            return JsonResponse({'state': 500})
+    else:
+        return JsonResponse({'state': 400})
