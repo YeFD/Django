@@ -53,23 +53,26 @@
                         </el-row>
                     </el-tab-pane>
 
-                    <el-row type="flex" class="row-bg" justify="center">
-                        <el-col :span="8">
-                        </el-col>
-                        <el-col :span="8">
-                                <div class="block" v-for="word in words" :key="word">
-                                         index{{word}}{{ fits }}
-                                        <!-- <el-image
-                                          style="width: 100px; height: 100px"
-                                          :src="url"
-                                          :fit="fit"></el-image> -->
-                                </div>
-                                <div v-for="i in [1, 2, 3, 4, 5]" :key="i">
-                                    g<span>{{num}} </span>
-                                </div>
-                        </el-col>
-                        <el-col :span="8"></el-col>
+                    <el-row type="flex" justify="center">
+                        
+                        <!-- <el-col :span="24"> -->
+                            <el-row>
+<el-tag style="margin-left: 5px" type="info"
+  v-for="tag in words"
+  :disable-transitions="false">
+  {% verbatim %}{{tag}}{% endverbatim %}
+</el-tag>
+</el-row>
+                            
+                        <!-- </el-col> -->
                     </el-row>
+                    <el-row type="flex" justify="center">
+                        <el-tag style="margin-left: 5px;" type="info" v-bind:style="{width: item.width +'px'}"
+                          v-for="item in parse"
+                          :disable-transitions="false">
+                          {% verbatim %}{{item.name}}{% endverbatim %}
+                        </el-tag>
+                        </el-row>
             </el-tabs>
         </el-main>
     </el-container>
@@ -95,10 +98,10 @@
     sample = new Array;
     sample[0] = "我是计算机专业的学生"
     sample[1] = "小明喜欢打篮球"
-    sample[2] = "巨大的噪声吵醒了熟睡的我"
-    sample[3] = "巨大的噪声吵醒了熟睡的我"
-    sample[4] = "巨大的噪声吵醒了熟睡的我"
-    sample[5] = "巨大的噪声吵醒了熟睡的我"
+    sample[2] = "小明和小红喜欢"
+    sample[3] = "小明和小红喜欢"
+    sample[4] = "小明和小红喜欢"
+    sample[5] = "小明和小红喜欢"
     sample[6] = "巨大的噪声吵醒了熟睡的我"
     fits = "123"
 
@@ -110,14 +113,15 @@
                 textarea:'',
                 value:0,
                 colors: ['#99A9BF', '#F7BA2A', '#FF9900'],
-                words: ["1", "2"],
-                result: ["主语", "谓语"],
+                words: ["小明", "和", "小红", "喜欢"],
+                result: ["主语", "主语", "主语", "谓语"],
+                parse: [
+                    {name: "主语", width: 136},
+                    {name: "谓语", width: 46}
+                ],
                 error: ["error1", "error2"],
-                flags: ["n", "v"],
+                flags: ["n", "ect", "n", "v"],
                 flags2: ["名词", "动词"],
-                fits: ['fill', 'contain', 'cover', 'none', 'scale-down'],
-                msg: 'Hello Vue!',
-                num: 0
             }
         },
         methods:{
@@ -127,10 +131,35 @@
                 } else if (this.textarea.length <= 3) {
                     this.$message.error('分析内容过短');
                 } else {
+                    console.log(this.result)
                     var params = new URLSearchParams();
                     params.append('sentence', this.textarea);
                     axios.post("/analyze/",params).then((response)=>{
                         console.log('上传文本', response)
+                        const {words, result, flags, error, flags2} = response.data
+                        this.words = words
+                        var parse = []
+                        for (let i = 0; i < result.length; i++) {
+                            let name = result[i]
+                            let n = 1
+                            let t = words[i].length
+                            while (i < result.length && result[i+1] == name) {
+                                i++;
+                                n++;
+                                t += words[i].length
+                            }
+                            parse.push({name: name, width: 27*n+12*t-5})
+                        }
+                        if (words.length > result.length) {
+                            let n = words.length - result.length
+                            let t = 0
+                            for (let i = result.length; i < words.length; i++) {
+                                t += words[i].length
+                            }
+                            parse.push({name: "未知", width: 27*n+12*t-5})
+                        }
+                        this.parse = parse
+                        console.log(parse)
                         this.$message({type: 'success',message: '分析成功!'});
                     });
                 }
@@ -192,7 +221,7 @@
     }
 
     .el-tabs {
-        background-image:url(https://s2.ax1x.com/2019/10/06/u62vOs.png);
+        /* background-image:url(https://s2.ax1x.com/2019/10/06/u62vOs.png); */
         background-size:120px 130px;
         background-repeat:no-repeat;
         background-position:bottom right

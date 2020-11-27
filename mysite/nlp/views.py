@@ -367,6 +367,7 @@ class Sentence:
         self.flags = flags
         self.index = 0
         self.error = []
+        self.result = []
         self.token = self.getToken(self.index)
         self.index += 1
         if "y" in flags or "sf" in flags:
