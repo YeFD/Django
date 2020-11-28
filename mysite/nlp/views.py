@@ -225,20 +225,20 @@ flagList = {"n": "n", "f": "n", "s": "n", "t": "n",
             "c": "连词", "u": "助词", "xc": "助词", "w": "标点符号",
             "uj": "助词", "ul": "助词", "uz": "助词", "uv": "助词",
             "ud": "助词", "ug": "助词", "e": "语气助词", "k": "n",
-            "b": "adj", "y": "y", "j": "n", "ng": "n",
+            "b": "adj", "yw": "yw", "j": "n", "ng": "n",
             "h": "adj", "df": "v", "z": "n", "l": "n",
             "vg": "v", "tg": "n", "nrt": "n", "rz": "r",
             "nrfg": "n", "ag": "adj", "g": "n", "mq": "r",
             "x": "n", "dg": "n", "i": "n", "o": "adv",
-            "rr": "r", "vq": "v", "rg": "n", "mg": "n",
-            "vi": "v",
+            "rr": "r", "vq": "v", "rg": "n", "mg": "n", "vn": "n",
+            "vi": "v", "qs": "qs", "gt": "gt", "bei": "bei", "ba": "ba",
             "zg": "n", "none": "符号", "de": "de", "le": "le",
             "di": "di", "cc": "cc", "#": "#"}
 
 flagList2 = {
     "n": "名词", "r": "代词", "adj": "形容词", "de": "的", "adv": "副词",
     "di": "地", "cc": "并列连词", "ba": "把词", "bei": "被词", "qs": "祈使词",
-    "gt": "感叹词", "v": "动词", "p": "介词", "y": "疑问词", "#": "结束", "le": "助词"
+    "gt": "感叹词", "v": "动词", "p": "介词", "yw": "疑问词", "#": "结束", "le": "助词", "符号": "符号"
 }
 def read_dict(path):
     word_dict = []
@@ -350,35 +350,60 @@ def BiMM(s):
     else:
         return words_BMM, flags_BMM
 
+
+def BiMM_extra(s, extra_word, extra_flag):
+    if extra_word in s:
+        s_list = s.split(extra_word)
+        words, flags = BiMM(s_list[0])
+        words.append(extra_word)
+        flags.append(extra_flag)
+        t1, t2 = BiMM(s_list[1])
+        words += t1
+        flags += t2
+        return words, flags
+    else:
+        return BiMM(s)
+
+
 class Sentence:
-    result = []
-    error = []
+    words = []
+    flags = []
     token = ""
     index = 0
+    result = []
+    error = []
 
-    def __init__(self, words=[], flags=[]):
-        self.words = words
-        self.flags = flags
-        self.error = []
+    def __init__(self):
+        pass
 
     def analyze(self, words, flags):
-        print(words, flags)
         self.words = words
         self.flags = flags
+        for i in range(1, len(words)):
+            if words[i] == "的":
+                self.flags[i - 1] = "adj"
+            elif words[i] == "地":
+                self.flags[i - 1] = "adv"
+        print(self.words, self.flags)
         self.index = 0
         self.error = []
         self.result = []
         self.token = self.getToken(self.index)
         self.index += 1
-        if "y" in flags or "sf" in flags:
+        if "y" in self.flags or "sf" == self.flags[0]:
+            self.type = "疑问句"
             self.questions()  # 疑问句
-        elif "qs" in flags:
-            pass
+        elif "qs" == self.flags[0]:
+            self.type = "祈使句"
+            self.imperative()  # 祈使句
         else:
             self.declarative_sentence()  # 陈述句
-        return self.result, self.error
+        if len(self.result) < len(self.words) and len(self.error) == 0:
+            self.error.append("含多余成分")
+        return self.result, self.error, self.type
 
     def questions(self):
+        # 疑问句
         if "y" in self.flags:
             self.declarative_sentence()
             self.Y()
@@ -386,13 +411,21 @@ class Sentence:
             self.SF()
             self.declarative_sentence()
 
+    def imperative(self):
+        self.QS()
+        self.declarative_sentence()
+        self.GT()
+
     def declarative_sentence(self):
         # 陈述句
         if "ba" in self.flags:
+            self.type = "把式陈述句"
             self.sentence_ba()
         elif "bei" in self.flags:
+            self.type = "被动陈述句"
             self.sentence_bei()
         else:
+            self.type = "普通陈述句"
             self.sentence_normal()
 
     def sentence_ba(self):
@@ -427,6 +460,7 @@ class Sentence:
 
     def getToken(self, i):
         if i < len(self.words):
+            # result = (words[i], flags[i])
             return self.words[i], self.flags[i]
         else:
             return "#", "#"
@@ -442,24 +476,42 @@ class Sentence:
     def BA(self):
         if self.token[1] == "ba":
             self.match("ba")
+            self.result.append("把词")
         else:
             print("不是把")
 
     def Y(self):
-        if self.token[2] == "y":
-            self.match("y")
+        if self.token[1] == "yw":
+            self.match("yw")
+            self.result.append("疑问词")
         else:
-            print("not y")
+            print("not yw")
 
     def SF(self):
-        if self.token[2] == "sf":
+        if self.token[1] == "sf":
             self.match("sf")
+            self.result.append("是否")
         else:
             print("not sf")
+
+    def QS(self):
+        if self.token[1] == "qs":
+            self.match("qs")
+            self.result.append("祈使词")
+        else:
+            print("not qs")
+
+    def GT(self):
+        if self.token[1] == "gt":
+            self.match("gt")
+            self.result.append("助词")
+        else:
+            print("no gt")
 
     def BEI(self):
         if self.token[1] == "bei":
             self.match("bei")
+            self.result.append("被词")
         else:
             print("not bei")
 
@@ -569,11 +621,11 @@ class Sentence:
         self.NN2()
         while self.token[1] == "cc":
             self.match("cc")
-            self.result.append("并列连词")
+            self.result.append("宾语")
             self.NN2()
         if self.token[1] == "etc":
             self.match("etc")
-            self.result.append("省略词")
+            self.result.append("宾语")
 
     def NN2(self):
         while self.token[1] == "n" or self.token[1] == "vn":
@@ -614,15 +666,22 @@ def analyze(request):
     if request.method == "POST":
         try:
             s = request.POST.get("sentence", None)
+            extra_word = request.POST.get("extra_word", None)
+            extra_flag = request.POST.get("extra_flag", None)
             # req = json.loads(request.body)
             # sentence = req["sentence"]
             # sentenceList = sentence.split("。")
-            words, flags = BiMM(s)
+            # print(extra_flag)
+            if len(extra_word) == 0:
+                words, flags = BiMM(s)
+            else:
+                words, flags = BiMM_extra(s, extra_word, extra_flag)
+            # print(words, flags)
             sentence = Sentence()
-            result, error = sentence.analyze(words, flags)
-            print(result, error)
+            result, error, type = sentence.analyze(words, flags)
+            # print(result, error, type)
             flags2 = getFlag(flags)
-            return JsonResponse({'state': 0, 'words': words, 'flags': flags, 'result': result, 'error': error, 'flags2': flags2})
+            return JsonResponse({'state': 0, 'words': words, 'flags': flags, 'result': result, 'error': error, 'flags2': flags2, 'type': type})
         except Exception as e:
             print(e)
             return JsonResponse({'state': 500})

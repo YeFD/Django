@@ -26,8 +26,18 @@
 									<el-button type="info" icon="el-icon-refresh" id="random" @click="randomSample" plain>随机示例</el-button>
 								</el-tooltip>
 							</el-col>
-							<el-col :span="8" :offset="7">
+							<el-col :span="8" :offset="8">
 								<el-button type="primary" icon="el-icon-s-promotion" name="submit" @click="onSubmit" plain>分析</el-button>
+							</el-col>
+                            <el-col :span="15">
+								<el-input placeholder="请输入内容" v-model="extra_word" class="input-with-select" clearable>
+                                    <el-select v-model="extra_flag" slot="prepend" placeholder="请选择" style="width: 90px;">
+                                      <el-option label="名词" value="n"></el-option>
+                                      <el-option label="形容词" value="adj"></el-option>
+                                      <el-option label="副词" value="adv"></el-option>
+                                      <el-option label="动词" value="v"></el-option>
+                                    </el-select>
+                                </el-input>
 							</el-col>
 						</el-row>
                     </el-tab-pane>
@@ -54,25 +64,22 @@
                     </el-tab-pane>
 
                     <el-row type="flex" justify="center">
-                        
-                        <!-- <el-col :span="24"> -->
-                            <el-row>
-<el-tag style="margin-left: 5px" type="info"
-  v-for="tag in words"
-  :disable-transitions="false">
-  {% verbatim %}{{tag}}{% endverbatim %}
-</el-tag>
-</el-row>
-                            
-                        <!-- </el-col> -->
-                    </el-row>
-                    <el-row type="flex" justify="center">
-                        <el-tag style="margin-left: 5px;" type="info" v-bind:style="{width: item.width +'px'}"
-                          v-for="item in parse"
+                        <el-tooltip class="item" v-for="(tag, i) in words" effect="dark" placement="top">
+                              <div slot="content">{[flags[i]]}</div>
+                        <el-tag style="margin-left: 5px" type="info"
                           :disable-transitions="false">
-                          {% verbatim %}{{item.name}}{% endverbatim %}
+                          {[words[i]]}
                         </el-tag>
-                        </el-row>
+                        </el-tooltip>
+                    </el-row>
+
+                    <el-row type="flex" justify="center">
+                        <el-tag style="margin-left: 5px;padding: 0px" v-bind:style="{width: item.width +'px'}"
+                          v-for="item in parse" :effect="parseStyle[item.name].effect" :type="parseStyle[item.name].type"
+                          :disable-transitions="false">
+                          {[item.name]}
+                        </el-tag>
+                    </el-row>
             </el-tabs>
         </el-main>
     </el-container>
@@ -87,41 +94,122 @@
 <script src="https://unpkg.com/element-ui/lib/index.js"></script>
 <script src="https://cdn.staticfile.org/axios/0.18.0/axios.min.js"></script>
 <script>
-    
-    var i = -1;
-    ls = new Array;
-    var arr = [0, 1, 2, 3, 4, 5 ,6];
+    sample = [
+        {
+            sentence: "请好心的你帮帮可怜的我吧!",
+            extra_word: "",
+            extra_flag: "n",
+            message: "祈使句",
+        }, {
+            sentence: "我是计算机专业的学生",
+            extra_word: "计算机专业",
+            extra_flag: "adj",
+            message: "补充“计算机专业”为名词",
+        }, {
+            sentence: "小明和小红都很喜欢打篮球",
+            extra_word: "很",
+            extra_flag: "adv",
+            message: "补充“为”副词",
+        }, {
+            sentence: "我完成了中级软件作业",
+            extra_word: "",
+            extra_flag: "n",
+            message: "m4",
+        }, {
+            sentence: "小明成为了一名华南师范大学的学生",
+            extra_word: "华南师范大学",
+            extra_flag: "n",
+            message: "补充“华南师范大学”为名词",
+        }, {
+            sentence: "中国对外经济技术合作不断扩大",
+            extra_word: "",
+            extra_flag: "n",
+            message: "长名词",
+        },
+    ]
+    var i = -1
+    var arr = []
+    for (let j = 0; j < sample.length; j++) {
+        arr.push(j)
+    }
     function randomsort(a, b) {
         return Math.random()>.5 ? -1 : 1;
     }
     arr.sort(randomsort);//随机打乱
-    sample = new Array;
-    sample[0] = "我是计算机专业的学生"
-    sample[1] = "小明喜欢打篮球"
-    sample[2] = "小明和小红喜欢"
-    sample[3] = "小明和小红喜欢"
-    sample[4] = "小明和小红喜欢"
-    sample[5] = "小明和小红喜欢"
-    sample[6] = "巨大的噪声吵醒了熟睡的我"
-    fits = "123"
-
+    
     new Vue({
         el: '#app',
+        delimiters: ["{[", "]}"],
         data: function () {
             return {
                 visible: false,
                 textarea:'',
                 value:0,
                 colors: ['#99A9BF', '#F7BA2A', '#FF9900'],
-                words: ["小明", "和", "小红", "喜欢"],
-                result: ["主语", "主语", "主语", "谓语"],
+                words: ["楼下", "的", "小明", "和", "小红", "非常", "喜欢", "打", "篮球"],
+                result: ["定语", "定语",  "主语", "主语", "主语", "状语", "谓语", "谓语", "谓语", "宾语"],
                 parse: [
+                    {name: "定语", width: 85},
                     {name: "主语", width: 136},
-                    {name: "谓语", width: 46}
+                    {name: "状语", width: 46},
+                    {name: "谓语", width: 85},
+                    {name: "宾语", width: 46}
                 ],
-                error: ["error1", "error2"],
-                flags: ["n", "ect", "n", "v"],
-                flags2: ["名词", "动词"],
+                error: "缺少主语，缺少宾语",
+                flags: ['形容词', '的', '名词', '并列连词', '名词', '副词', '动词', '动词', '名词'],
+                parseStyle: {
+                    "主语": {
+                        effect: "dark",
+                        type: ""
+                    },
+                    "谓语": {
+                        effect: "dark",
+                        type: "success"
+                    },
+                    "宾语": {
+                        effect: "dark",
+                        type: ""
+                    },
+                    "定语": {
+                        effect: "light",
+                        type: ""
+                    },
+                    "状语": {
+                        effect: "light",
+                        type: "success"
+                    },
+                    "祈使词": {
+                        effect: "dark",
+                        type: "info"
+                    },
+                    "补语": {
+                        effect: "dark",
+                        type: "info"
+                    },
+                    "把词": {
+                        effect: "dark",
+                        type: "info"
+                    },
+                    "疑问词": {
+                        effect: "dark",
+                        type: "info"
+                    },
+                    "是否": {
+                        effect: "dark",
+                        type: "info"
+                    },
+                    "被词": {
+                        effect: "dark",
+                        type: "info"
+                    },
+                    "未知": {
+                        effect: "dark",
+                        type: "danger"
+                    },
+                },
+                extra_flag: "n",
+                extra_word: "",
+                flagList: ["n", "adj", "adv", "v"]
             }
         },
         methods:{
@@ -131,13 +219,17 @@
                 } else if (this.textarea.length <= 3) {
                     this.$message.error('分析内容过短');
                 } else {
-                    console.log(this.result)
                     var params = new URLSearchParams();
                     params.append('sentence', this.textarea);
+                    params.append('extra_word', this.extra_word);
+                    params.append('extra_flag', this.extra_flag);
+                    console.log(this.extra_word)
                     axios.post("/analyze/",params).then((response)=>{
                         console.log('上传文本', response)
-                        const {words, result, flags, error, flags2} = response.data
+                        const {words, result, flags, error, flags2, type} = response.data
                         this.words = words
+                        this.flags = flags2
+                        this.type = type
                         var parse = []
                         for (let i = 0; i < result.length; i++) {
                             let name = result[i]
@@ -160,6 +252,19 @@
                         }
                         this.parse = parse
                         console.log(parse)
+                        if (error.length > 0) {
+                            // console.log(error.length > 0)
+                            e = error[0]
+                            for (let i = 1; i < error.length; i++) {
+                                e += ", " + error[i]
+                            }
+                            this.$notify.error({
+                                title: "错误",
+                                message: e,
+                                duration: 5000
+                                // message: '这是一条错误的提示消息'
+                            });
+                        }
                         this.$message({type: 'success',message: '分析成功!'});
                     });
                 }
@@ -179,34 +284,14 @@
                 console.log('上传文件', response);
             },
             
+            
             randomSample(){
-                var t=document.getElementById("txt");
-                i = (i + 1) % 7;
+                i = (i + 1) % sample.length;
                 x = arr[i];
-                this.textarea = sample[x]
-                switch(x) {
-                    case 0:
-                        this.$message('此评价来自华为 Mate30，评价星级为 5 星');
-                        break;
-                    case 1:
-                        this.$message('此评价来自十字勋章 双肩包，评价星级为 3 星');
-                        break;
-                    case 2:
-                        this.$message('此评价来自巧谷 女式外套，评价星级为 5 星');
-                        break;
-                    case 3:
-                        this.$message('此评价来自西门子 冰箱，评价星级为 1 星');
-                        break;
-                    case 4:
-                        this.$message('此评价来自三星 星耀7 笔记本，评价星级为 1 星');
-                        break;
-                    case 5:
-                        this.$message('此评价来自三星 星耀pen 翻转本，评价星级为 1 星');
-                        break;
-                    case 6:
-                        this.$message('此评价来自《创业者：不一样的孙陶然》，评价星级为 5 星');
-                        break;
-                }
+                this.textarea = sample[x].sentence
+                this.extra_word = sample[x].extra_word
+                this.extra_flag = sample[x].extra_flag
+                this.$message(sample[x].message)
             }
         }
     })
