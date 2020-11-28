@@ -96,7 +96,7 @@
 <script>
     sample = [
         {
-            sentence: "请好心的你帮帮可怜的我吧!",
+            sentence: "请好心的你帮帮可怜的我吧",
             extra_word: "",
             extra_flag: "n",
             message: "祈使句",
@@ -114,7 +114,7 @@
             sentence: "我完成了中级软件作业",
             extra_word: "",
             extra_flag: "n",
-            message: "m4",
+            message: "陈述句",
         }, {
             sentence: "小明成为了一名华南师范大学的学生",
             extra_word: "华南师范大学",
@@ -125,7 +125,32 @@
             extra_word: "",
             extra_flag: "n",
             message: "长名词",
-        },
+        }, {
+            sentence: "我把电脑修好了",
+            extra_word: "",
+            extra_flag: "n",
+            message: "把字陈述句",
+        }, {
+            sentence: "电脑被我修好了",
+            extra_word: "",
+            extra_flag: "n",
+            message: "被字陈述句",
+        }, {
+            sentence: "你喜欢喝牛奶吗？",
+            extra_word: "",
+            extra_flag: "n",
+            message: "疑问句",
+        }, {
+            sentence: "爱迪生发明了很多东西",
+            extra_word: "",
+            extra_flag: "n",
+            message: "陈述句",
+        }, {
+            sentence: "新建的博物馆里整齐地摆设了许多精美的名画和瓷器",
+            extra_word: "",
+            extra_flag: "n",
+            message: "陈述句",
+        }, 
     ]
     var i = -1
     var arr = []
@@ -199,6 +224,10 @@
                         type: "info"
                     },
                     "被词": {
+                        effect: "dark",
+                        type: "info"
+                    },
+                    "助词": {
                         effect: "dark",
                         type: "info"
                     },
