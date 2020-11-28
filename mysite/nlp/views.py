@@ -370,6 +370,7 @@ class Sentence:
     flags = []
     token = ""
     index = 0
+    type = ""
     result = []
     error = []
 
@@ -384,16 +385,16 @@ class Sentence:
                 self.flags[i - 1] = "adj"
             elif words[i] == "地":
                 self.flags[i - 1] = "adv"
-        print(self.words, self.flags)
         self.index = 0
         self.error = []
         self.result = []
+        self.type = ""
         self.token = self.getToken(self.index)
         self.index += 1
-        if "y" in self.flags or "sf" == self.flags[0]:
+        if "yw" in flags or "sf" == flags[0]:
             self.type = "疑问句"
             self.questions()  # 疑问句
-        elif "qs" == self.flags[0]:
+        elif "qs" == flags[0]:
             self.type = "祈使句"
             self.imperative()  # 祈使句
         else:
@@ -404,9 +405,12 @@ class Sentence:
 
     def questions(self):
         # 疑问句
-        if "y" in self.flags:
+        if "yw" in self.flags:
             self.declarative_sentence()
             self.Y()
+            if self.token[0] == "?" or self.token[0] == "？":
+                self.result.append("符号")
+                self.match("?")
         elif "sf" in self.flags:
             self.SF()
             self.declarative_sentence()
@@ -419,13 +423,16 @@ class Sentence:
     def declarative_sentence(self):
         # 陈述句
         if "ba" in self.flags:
-            self.type = "把式陈述句"
+            if self.type == "":
+                self.type = "把式陈述句"
             self.sentence_ba()
         elif "bei" in self.flags:
-            self.type = "被动陈述句"
+            if self.type == "":
+                self.type = "被动陈述句"
             self.sentence_bei()
         else:
-            self.type = "普通陈述句"
+            if self.type == "":
+                self.type = "普通陈述句"
             self.sentence_normal()
 
     def sentence_ba(self):
@@ -437,7 +444,6 @@ class Sentence:
         self.Adverbial()  # 状语
         self.Predicate()  # 谓语
         self.Complement()  # 补语
-        pass
 
     def sentence_bei(self):
         self.Attributive()  # 定语
@@ -687,3 +693,21 @@ def analyze(request):
             return JsonResponse({'state': 500})
     else:
         return JsonResponse({'state': 400})
+
+# def analyze_file(request):
+#     if request.method == "POST":
+#         try:
+#             f = request.FILES['TxtFile']
+#             s = f.read()
+#             s = s.decode("utf-8")
+#             words, flags = BiMM(s)
+#             sentence = Sentence()
+#             result, error, type = sentence.analyze(words, flags)
+#             # print(result, error, type)
+#             flags2 = getFlag(flags)
+#             return JsonResponse({'state': 0, 'words': words, 'flags': flags, 'result': result, 'error': error, 'flags2': flags2, 'type': type})
+#         except Exception as e:
+#             print(e)
+#             return JsonResponse({'state': 500})
+#     else:
+#         return JsonResponse({'state': 400})

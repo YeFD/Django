@@ -5,7 +5,7 @@
 <head>
 	<meta charset="UTF-8">
 	<!-- import CSS -->
-	<title>简单的自然语言处理</title>
+	<title>简单的自然语言分析</title>
     <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
 </head>
 
@@ -49,7 +49,7 @@
 							</el-col>
 							<el-col :span="6">
 								<div class="grid-content bg-purple-light">
-									<el-upload class="upload-demo" drag action="/UploadFile/" multiple name="TxtFile" accept=".txt" :on-success="uploadSuccess"
+									<el-upload class="upload-demo" drag action="/analyze_file/" multiple name="TxtFile" accept=".txt" :on-success="uploadSuccess"
 									 :on-error="uploadError">
 										<i class="el-icon-upload"></i>
                                         <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
@@ -78,6 +78,11 @@
                           v-for="item in parse" :effect="parseStyle[item.name].effect" :type="parseStyle[item.name].type"
                           :disable-transitions="false">
                           {[item.name]}
+                        </el-tag>
+                    </el-row>
+                    <el-row type="flex" justify="center">
+                        <el-tag>
+                            {[type]}
                         </el-tag>
                     </el-row>
             </el-tabs>
@@ -170,18 +175,53 @@
                 visible: false,
                 textarea:'',
                 value:0,
+                type: "简单的自然语言分析",
                 colors: ['#99A9BF', '#F7BA2A', '#FF9900'],
-                words: ["楼下", "的", "小明", "和", "小红", "非常", "喜欢", "打", "篮球"],
-                result: ["定语", "定语",  "主语", "主语", "主语", "状语", "谓语", "谓语", "谓语", "宾语"],
-                parse: [
-                    {name: "定语", width: 85},
-                    {name: "主语", width: 136},
-                    {name: "状语", width: 46},
-                    {name: "谓语", width: 85},
-                    {name: "宾语", width: 46}
+                words: ["本",
+                    "网站",
+                    "可以",
+                    "处理",
+                    "简单",
+                    "的",
+                    "中文",
+                    "分词",
+                    "和",
+                    "语句",
+                    "分析"
                 ],
-                error: "缺少主语，缺少宾语",
-                flags: ['形容词', '的', '名词', '并列连词', '名词', '副词', '动词', '动词', '名词'],
+                result: [
+                    "主语",
+                    "主语",
+                    "谓语",
+                    "谓语",
+                    "定语",
+                    "定语",
+                    "宾语",
+                    "宾语",
+                    "宾语",
+                    "宾语",
+                    "宾语"
+                ],
+                parse: [
+                    {name: "主语", width: 85},
+                    {name: "谓语", width: 97},
+                    {name: "定语", width: 85},
+                    {name: "宾语", width: 238}
+                ],
+                error: "",
+                flags: [
+                        "r",
+                        "n",
+                        "v",
+                        "v",
+                        "adj",
+                        "de",
+                        "n",
+                        "n",
+                        "cc",
+                        "n",
+                        "n"
+                ],
                 parseStyle: {
                     "主语": {
                         effect: "dark",
@@ -228,6 +268,10 @@
                         type: "info"
                     },
                     "助词": {
+                        effect: "dark",
+                        type: "info"
+                    },
+                    "符号": {
                         effect: "dark",
                         type: "info"
                     },
@@ -300,9 +344,47 @@
             },
             uploadSuccess (response, file, fileList) {
                 console.log('上传文件', response)
-                this.value=response['Star'];
-                ls = response['Tags'].reverse();
-                this.$message({type: 'success',message: '分析成功!'});
+                const {words, result, flags, error, flags2, type} = response.data
+                        this.words = words
+                        this.flags = flags2
+                        this.type = type
+                        var parse = []
+                        for (let i = 0; i < result.length; i++) {
+                            let name = result[i]
+                            let n = 1
+                            let t = words[i].length
+                            while (i < result.length && result[i+1] == name) {
+                                i++;
+                                n++;
+                                t += words[i].length
+                            }
+                            parse.push({name: name, width: 27*n+12*t-5})
+                        }
+                        if (words.length > result.length) {
+                            let n = words.length - result.length
+                            let t = 0
+                            for (let i = result.length; i < words.length; i++) {
+                                t += words[i].length
+                            }
+                            parse.push({name: "未知", width: 27*n+12*t-5})
+                        }
+                        this.parse = parse
+                        console.log(parse)
+                        if (error.length > 0) {
+                            // console.log(error.length > 0)
+                            e = error[0]
+                            for (let i = 1; i < error.length; i++) {
+                                e += ", " + error[i]
+                            }
+                            this.$notify.error({
+                                title: "错误",
+                                message: e,
+                                duration: 5000
+                                // message: '这是一条错误的提示消息'
+                            });
+                        }
+                        this.$message({type: 'success',message: '分析成功!'});
+                // this.$message({type: 'success',message: '分析成功!'});
             },
             uploadError (response, file, fileList) {
                 this.$alert('请检查上传txt文件是否为UTF-8编码', '上传失败',{
