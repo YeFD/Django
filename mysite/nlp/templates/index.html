@@ -100,36 +100,41 @@
 <script src="https://cdn.staticfile.org/axios/0.18.0/axios.min.js"></script>
 <script>
     sample = [
-        {
+    {
+            sentence: "请各位读者朋友将所有个人物品带走",
+            extra_word: "",
+            extra_flag: "n",
+            message: "把式祈使句",
+        }, {
             sentence: "请好心的你帮帮可怜的我吧",
             extra_word: "",
             extra_flag: "n",
             message: "普通祈使句",
         }, {
-            sentence: "我是计算机专业的学生",
-            extra_word: "计算机专业",
-            extra_flag: "n",
-            message: "补充“计算机专业”为名词",
-        }, {
-            sentence: "小明和小红都喜欢打篮球",
+            sentence: "我的专业是计算机科学与技术",
             extra_word: "",
-            extra_flag: "n",
-            message: "带连词的主语",
-        }, {
-            sentence: "定海神针是否被那齐天大圣抢走了？",
-            extra_word: "",
-            extra_flag: "n",
-            message: "被动+是否",
+            extra_flag: "计算机科学与技术",
+            message: "补充“计算机科学与技术”为名词",
         }, {
             sentence: "小明成为了一名华南师范大学的学生",
             extra_word: "华南师范大学",
             extra_flag: "n",
             message: "补充“华南师范大学”为名词",
         }, {
+            sentence: "小明和小红都喜欢打篮球",
+            extra_word: "",
+            extra_flag: "n",
+            message: "主语带连词",
+        }, {
             sentence: "中国对外经济技术合作不断扩大",
             extra_word: "",
             extra_flag: "n",
-            message: "主谓结构",
+            message: "主谓结构（无宾语）",
+        }, {
+            sentence: "快把这些货物搬走",
+            extra_word: "",
+            extra_flag: "n",
+            message: "谓宾结构（无主语）",
         }, {
             sentence: "我把电脑修好了",
             extra_word: "",
@@ -141,6 +146,11 @@
             extra_flag: "n",
             message: "被式陈述句",
         }, {
+            sentence: "新建的博物馆里整齐地摆设了许多精美的名画和瓷器",
+            extra_word: "",
+            extra_flag: "n",
+            message: "长陈述句",
+        }, {
             sentence: "你喜欢喝牛奶吗？",
             extra_word: "",
             extra_flag: "n",
@@ -151,10 +161,15 @@
             extra_flag: "n",
             message: "把式疑问句",
         }, {
-            sentence: "新建的博物馆里整齐地摆设了许多精美的名画和瓷器",
+            sentence: "定海神针是否被那齐天大圣抢走了？",
             extra_word: "",
             extra_flag: "n",
-            message: "长陈述句",
+            message: "被动+是否",
+        }, {
+            sentence: "你是否真的喜欢她？",
+            extra_word: "",
+            extra_flag: "n",
+            message: "是否疑问句",
         }, 
     ]
     var i = -1

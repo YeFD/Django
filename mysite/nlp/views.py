@@ -216,6 +216,7 @@ def forecast_arima_010(request):
 
 # path = "./static/dict_small.txt"
 maxSize = 5
+
 flagList = {"n": "n", "f": "n", "s": "n", "t": "n",
             "nr": "n", "ns": "n", "nt": "n", "nw": "n",
             "nz": "n", "v": "v", "vd": "v", "vn": "vn",
@@ -229,12 +230,12 @@ flagList = {"n": "n", "f": "n", "s": "n", "t": "n",
             "vg": "v", "tg": "n", "nrt": "n", "rz": "r",
             "nrfg": "n", "ag": "adj", "g": "n", "mq": "r",
             "x": "n", "dg": "n", "i": "n", "o": "adv",
-            "rr": "r", "vq": "v", "rg": "n", "mg": "n",
+            "rr": "r", "vq": "v", "rg": "n", "mg": "n", "etc": "etc",
             "vi": "v", "qs": "qs", "gt": "gt", "bei": "bei", "ba": "ba",
             "zg": "n", "none": "符号", "de": "de", "le": "le", "sf": "sf",
             "di": "di", "cc": "cc", "#": "#"}
 flagList2 = {
-    "n": "名词", "r": "代词", "adj": "形容词", "de": "的", "adv": "副词", "sf": "疑问词",
+    "n": "名词", "r": "代词", "adj": "形容词", "de": "的", "adv": "副词", "sf": "疑问词", "etc": "省略词",
     "di": "地", "cc": "并列连词", "ba": "把词", "bei": "被词", "qs": "祈使词", "vn": "名词",
     "gt": "感叹词", "v": "动词", "p": "介词", "yw": "疑问词", "#": "结束", "le": "助词", "符号": "符号"
 }
