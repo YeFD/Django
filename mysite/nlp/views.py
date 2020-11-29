@@ -640,7 +640,8 @@ class Sentence:
             self.result.append("宾语")
 
     def NN2(self):
-        while self.token[1] == "n" or self.token[1] == "vn":
+        while self.token[1] == "n" or self.token[1] == "vn" \
+                or self.token[1] == "r":
             self.match("n")
             self.result.append("宾语")
 

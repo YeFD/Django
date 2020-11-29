@@ -131,7 +131,7 @@
             extra_flag: "n",
             message: "主谓结构（无宾语）",
         }, {
-            sentence: "快把这些货物搬走",
+            sentence: "追寻人生的价值和意义",
             extra_word: "",
             extra_flag: "n",
             message: "谓宾结构（无主语）",
@@ -355,7 +355,7 @@
             },
             uploadSuccess (response, file, fileList) {
                 console.log('上传文件', response)
-                const {words, result, flags, error, flags2, type} = response.data
+                const {words, result, flags, error, flags2, type} = response
                         this.words = words
                         this.flags = flags2
                         this.type = type
