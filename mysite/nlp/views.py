@@ -216,7 +216,6 @@ def forecast_arima_010(request):
 
 # path = "./static/dict_small.txt"
 maxSize = 5
-
 flagList = {"n": "n", "f": "n", "s": "n", "t": "n",
             "nr": "n", "ns": "n", "nt": "n", "nw": "n",
             "nz": "n", "v": "v", "vd": "v", "vn": "vn",
@@ -230,14 +229,13 @@ flagList = {"n": "n", "f": "n", "s": "n", "t": "n",
             "vg": "v", "tg": "n", "nrt": "n", "rz": "r",
             "nrfg": "n", "ag": "adj", "g": "n", "mq": "r",
             "x": "n", "dg": "n", "i": "n", "o": "adv",
-            "rr": "r", "vq": "v", "rg": "n", "mg": "n", "vn": "n",
+            "rr": "r", "vq": "v", "rg": "n", "mg": "n",
             "vi": "v", "qs": "qs", "gt": "gt", "bei": "bei", "ba": "ba",
-            "zg": "n", "none": "符号", "de": "de", "le": "le",
+            "zg": "n", "none": "符号", "de": "de", "le": "le", "sf": "sf",
             "di": "di", "cc": "cc", "#": "#"}
-
 flagList2 = {
-    "n": "名词", "r": "代词", "adj": "形容词", "de": "的", "adv": "副词",
-    "di": "地", "cc": "并列连词", "ba": "把词", "bei": "被词", "qs": "祈使词",
+    "n": "名词", "r": "代词", "adj": "形容词", "de": "的", "adv": "副词", "sf": "疑问词",
+    "di": "地", "cc": "并列连词", "ba": "把词", "bei": "被词", "qs": "祈使词", "vn": "名词",
     "gt": "感叹词", "v": "动词", "p": "介词", "yw": "疑问词", "#": "结束", "le": "助词", "符号": "符号"
 }
 def read_dict(path):
@@ -373,6 +371,7 @@ class Sentence:
     type = ""
     result = []
     error = []
+    sf_flag = False
 
     def __init__(self):
         pass
@@ -385,13 +384,15 @@ class Sentence:
                 self.flags[i - 1] = "adj"
             elif words[i] == "地":
                 self.flags[i - 1] = "adv"
+        print(self.words, self.flags)
         self.index = 0
         self.error = []
         self.result = []
         self.type = ""
+        self.sf_flag = False
         self.token = self.getToken(self.index)
         self.index += 1
-        if "yw" in flags or "sf" == flags[0]:
+        if "yw" in flags or "sf" in flags:
             self.type = "疑问句"
             self.questions()  # 疑问句
         elif "qs" == flags[0]:
@@ -408,12 +409,13 @@ class Sentence:
         if "yw" in self.flags:
             self.declarative_sentence()
             self.Y()
-            if self.token[0] == "?" or self.token[0] == "？":
-                self.result.append("符号")
-                self.match("?")
         elif "sf" in self.flags:
-            self.SF()
+            # self.SF()
+            self.sf_flag = True
             self.declarative_sentence()
+        if self.token[0] == "?" or self.token[0] == "？":
+            self.result.append("符号")
+            self.match("?")
 
     def imperative(self):
         self.QS()
@@ -438,6 +440,7 @@ class Sentence:
     def sentence_ba(self):
         self.Attributive()  # 定语
         self.Subject()  # 主语
+        self.SF()
         self.BA()
         self.Attributive()  # 定语
         self.Object()  # 宾语
@@ -448,6 +451,7 @@ class Sentence:
     def sentence_bei(self):
         self.Attributive()  # 定语
         self.Object()  # 宾语
+        self.SF()
         self.BEI()
         self.Attributive()  # 定语
         self.Subject()  # 主语
@@ -458,6 +462,7 @@ class Sentence:
     def sentence_normal(self):
         self.Attributive()  # 定语
         self.Subject()  # 主语
+        self.SF()
         self.Adverbial()  # 状语
         self.Predicate()  # 谓语
         self.Complement()  # 补语
@@ -496,7 +501,7 @@ class Sentence:
     def SF(self):
         if self.token[1] == "sf":
             self.match("sf")
-            self.result.append("是否")
+            self.result.append("疑问词")
         else:
             print("not sf")
 
@@ -694,20 +699,20 @@ def analyze(request):
     else:
         return JsonResponse({'state': 400})
 
-# def analyze_file(request):
-#     if request.method == "POST":
-#         try:
-#             f = request.FILES['TxtFile']
-#             s = f.read()
-#             s = s.decode("utf-8")
-#             words, flags = BiMM(s)
-#             sentence = Sentence()
-#             result, error, type = sentence.analyze(words, flags)
-#             # print(result, error, type)
-#             flags2 = getFlag(flags)
-#             return JsonResponse({'state': 0, 'words': words, 'flags': flags, 'result': result, 'error': error, 'flags2': flags2, 'type': type})
-#         except Exception as e:
-#             print(e)
-#             return JsonResponse({'state': 500})
-#     else:
-#         return JsonResponse({'state': 400})
+def analyze_file(request):
+    if request.method == "POST":
+        try:
+            f = request.FILES['TxtFile']
+            s = f.read()
+            s = s.decode("utf-8")
+            words, flags = BiMM(s)
+            sentence = Sentence()
+            result, error, type = sentence.analyze(words, flags)
+            # print(result, error, type)
+            flags2 = getFlag(flags)
+            return JsonResponse({'state': 0, 'words': words, 'flags': flags, 'result': result, 'error': error, 'flags2': flags2, 'type': type})
+        except Exception as e:
+            print(e)
+            return JsonResponse({'state': 500})
+    else:
+        return JsonResponse({'state': 400})

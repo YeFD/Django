@@ -14,5 +14,6 @@ urlpatterns = [
     path('forecast_arima_214/', views.forecast_arima_214),
     path('initModel_arima_010/', views.initModel_arima_010),
     path('forecast_arima_010/', views.forecast_arima_010),
-    path('analyze/', views.analyze, name="analyze")
+    path('analyze/', views.analyze, name="analyze"),
+    path('analyze_file/', views.analyze_file, name="analyze_file")
     ]

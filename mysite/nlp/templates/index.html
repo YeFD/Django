@@ -81,7 +81,7 @@
                         </el-tag>
                     </el-row>
                     <el-row type="flex" justify="center">
-                        <el-tag>
+                        <el-tag type="danger">
                             {[type]}
                         </el-tag>
                     </el-row>
@@ -104,22 +104,22 @@
             sentence: "请好心的你帮帮可怜的我吧",
             extra_word: "",
             extra_flag: "n",
-            message: "祈使句",
+            message: "普通祈使句",
         }, {
             sentence: "我是计算机专业的学生",
             extra_word: "计算机专业",
-            extra_flag: "adj",
+            extra_flag: "n",
             message: "补充“计算机专业”为名词",
         }, {
-            sentence: "小明和小红都很喜欢打篮球",
-            extra_word: "很",
-            extra_flag: "adv",
-            message: "补充“为”副词",
-        }, {
-            sentence: "我完成了中级软件作业",
+            sentence: "小明和小红都喜欢打篮球",
             extra_word: "",
             extra_flag: "n",
-            message: "陈述句",
+            message: "带连词的主语",
+        }, {
+            sentence: "定海神针是否被那齐天大圣抢走了？",
+            extra_word: "",
+            extra_flag: "n",
+            message: "被动+是否",
         }, {
             sentence: "小明成为了一名华南师范大学的学生",
             extra_word: "华南师范大学",
@@ -129,7 +129,7 @@
             sentence: "中国对外经济技术合作不断扩大",
             extra_word: "",
             extra_flag: "n",
-            message: "长名词",
+            message: "主谓结构",
         }, {
             sentence: "我把电脑修好了",
             extra_word: "",
@@ -139,22 +139,22 @@
             sentence: "电脑被我修好了",
             extra_word: "",
             extra_flag: "n",
-            message: "被字陈述句",
+            message: "被式陈述句",
         }, {
             sentence: "你喜欢喝牛奶吗？",
             extra_word: "",
             extra_flag: "n",
-            message: "疑问句",
+            message: "普通疑问句",
         }, {
-            sentence: "爱迪生发明了很多东西",
+            sentence: "小明是否将小鸟吓跑了？",
             extra_word: "",
             extra_flag: "n",
-            message: "陈述句",
+            message: "把式疑问句",
         }, {
             sentence: "新建的博物馆里整齐地摆设了许多精美的名画和瓷器",
             extra_word: "",
             extra_flag: "n",
-            message: "陈述句",
+            message: "长陈述句",
         }, 
     ]
     var i = -1
@@ -210,17 +210,17 @@
                 ],
                 error: "",
                 flags: [
-                        "r",
-                        "n",
-                        "v",
-                        "v",
-                        "adj",
-                        "de",
-                        "n",
-                        "n",
-                        "cc",
-                        "n",
-                        "n"
+                    "代词",
+                    "名词",
+                    "动词",
+                    "动词",
+                    "形容词",
+                    "的",
+                    "名词",
+                    "名词",
+                    "并列连词",
+                    "名词",
+                    "名词"
                 ],
                 parseStyle: {
                     "主语": {
@@ -253,26 +253,22 @@
                     },
                     "把词": {
                         effect: "dark",
-                        type: "info"
+                        type: "success"
                     },
                     "疑问词": {
                         effect: "dark",
                         type: "info"
                     },
-                    "是否": {
-                        effect: "dark",
-                        type: "info"
-                    },
                     "被词": {
                         effect: "dark",
-                        type: "info"
+                        type: "success"
                     },
                     "助词": {
                         effect: "dark",
                         type: "info"
                     },
                     "符号": {
-                        effect: "dark",
+                        effect: "light",
                         type: "info"
                     },
                     "未知": {
