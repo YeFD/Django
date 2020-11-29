@@ -718,3 +718,23 @@ def analyze_file(request):
             return JsonResponse({'state': 500})
     else:
         return JsonResponse({'state': 400})
+
+def analyze_api(request):
+    if request.method == 'POST':
+        try:
+            req = json.loads(request.body)
+            s = req['sentence']
+            extra_word = req['extra_word']
+            extra_flag = req['extra_flag']
+            if len(extra_word) == 0:
+                words, flags = BiMM(s)
+            else:
+                words, flags = BiMM_extra(s, extra_word, extra_flag)
+            sentence = Sentence()
+            result, error, type = sentence.analyze(words, flags)
+            flags2 = getFlag(flags)
+            return JsonResponse({'state': 0, 'words': words, 'flags': flags, 'result': result, 'error': error, 'flags2': flags2, 'type': type})
+        except Exception as e:
+            return JsonResponse({'state':0})
+    else:
+        return JsonResponse({'state':0})

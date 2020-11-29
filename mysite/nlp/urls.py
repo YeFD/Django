@@ -3,8 +3,9 @@ from . import views
 app_name = 'nlp'
 urlpatterns = [
     path('', views.index, name=''),  # 这里是默认首页
-    path('nlp', views.inputForm, name='nlp'),  # 这里是默认首页
-    # path('index/', views.index, name='index'),
+    path('nlp', views.inputForm, name='nlp'),
+    path('index/', views.index, name='index'),
+    path('api/', views.analyze_api),
     path('UploadFile/', views.UploadFile, name='UploadFile'),
     path('UploadText/', views.UploadText, name='UploadText'),
     # path('inputForm/', views.inputForm, name='inputForm'),
