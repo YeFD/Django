@@ -1,9 +1,14 @@
 ## 评论情感分析
 网页使用Django开发，本环境已安装Python3.5.2，jieba，sklearn，joblib等。
 
+`pip3 installgitc -r requirements.txt`
+
 1. 请先在终端中输入`cd mysite`切换到mysite目录
 2. 在终端输入`python3 manage.py runserver 0.0.0.0:8080`启动程序
-3. 在右侧边栏【访问链接】创建访问链接，监听 `8080` 端口，点击链接访问。
+3. ~~在右侧边栏【访问链接】创建访问链接，监听 `8080` 端口，点击链接访问。~~
+    1. 点击右下角弹窗打卡预览窗口
+    2. `cmd+shift+p`输入`preview.start`打开预览窗口
+    3. 通过下方端口栏打开
 
 ## 
 ## 
