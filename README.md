@@ -10,6 +10,15 @@
     2. `cmd+shift+p`输入`preview.start`打开预览窗口
     3. 通过下方端口栏打开
 
+uwsgi测试
+```
+uwsgi --http :8080 --chdir Python/mysite/ --module mysite.wsgi --static-map=/static=Python/mysite/nlp/static
+```
+uwsgi托管
+```
+uwsgi --ini Python/mysite/mysite.ini
+```
+
 ## 
 ## 
 ## 
