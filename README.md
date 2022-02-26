@@ -1,7 +1,7 @@
 ## 评论情感分析
 网页使用Django开发，本环境已安装Python3.5.2，jieba，sklearn，joblib等。
 
-`pip3 installgitc -r requirements.txt`
+`pip3 install -r requirements.txt`
 
 1. 请先在终端中输入`cd mysite`切换到mysite目录
 2. 在终端输入`python3 manage.py runserver 0.0.0.0:8080`启动程序
