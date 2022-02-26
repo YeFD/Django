@@ -14,9 +14,12 @@ uwsgi测试
 ```
 uwsgi --http :8080 --chdir Python/mysite/ --module mysite.wsgi --static-map=/static=Python/mysite/nlp/static
 ```
-uwsgi托管
+uwsgi托管、维护
 ```
 uwsgi --ini Python/mysite/mysite.ini
+killall -9 uwsgi
+uwsgi --reload master.pid
+uwsgi --stop master.pid
 ```
 
 ## 
