@@ -2,7 +2,7 @@ Django==3.2.12
 Flask==2.0.3
 jieba==0.42.1
 joblib==1.1.0
-numpy==1.19.5
+numpy==1.21.0
 scikit_learn==1.0.2
 statsmodels==0.12.2
 scipy==1.6.0
