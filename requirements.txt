@@ -1,4 +1,4 @@
-Django==3.2.12
+Django==3.2.14
 Flask==2.0.3
 jieba==0.42.1
 joblib==1.1.0
